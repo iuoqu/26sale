@@ -785,7 +785,16 @@ async function sendChatMessage() {
     });
 
     if (!response.ok) {
-      throw new Error('API request failed');
+      let errorDetail = `API错误 ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) errorDetail = errorData.message;
+        if (errorData.error) errorDetail = errorData.error;
+        if (errorData.hint) errorDetail += '\n' + errorData.hint;
+      } catch (e) {
+        // response不是JSON格式
+      }
+      throw new Error(errorDetail);
     }
 
     const data = await response.json();
