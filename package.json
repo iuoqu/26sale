@@ -1,0 +1,11 @@
+{
+  "name": "26sale",
+  "version": "1.0.0",
+  "description": "Private Sale 2026 SS Collection",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0"
+  }
+}

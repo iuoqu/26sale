@@ -278,6 +278,125 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 }
 .back-top.show { display: block; }
 
+/* Chat Widget */
+.chat-toggle {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 90;
+}
+.chat-toggle:hover { background: #d4b574; transform: scale(1.1); }
+
+.chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 40px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 1001;
+}
+.chat-widget.show { display: flex; }
+
+.chat-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.chat-message.user {
+  align-self: flex-end;
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 8px 2px 8px 8px;
+}
+.chat-message.assistant {
+  align-self: flex-start;
+  background: #f0ede6;
+  color: #333;
+  border-radius: 2px 8px 8px 8px;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e8e4dd;
+  background: #fafafa;
+  border-radius: 0 0 12px 12px;
+}
+.chat-input {
+  flex: 1;
+  border: 1px solid #d4cfc7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+}
+.chat-input:focus { border-color: #c9a96e; }
+.chat-send {
+  padding: 8px 16px;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.chat-send:hover { background: #d4b574; }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* Mobile */
 @media (max-width: 600px) {
   .header h1 { font-size: 13px; }
@@ -311,6 +430,20 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 
 <div class="container" id="productList"></div>
 
+<!-- AI Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+  <div class="chat-header">
+    <span>🤖 AI 购物助手</span>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="描述你想要的产品..." class="chat-input">
+    <button onclick="sendChatMessage()" class="chat-send">发送</button>
+  </div>
+</div>
+
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬 AI 助手</button>
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <script>
@@ -511,6 +644,111 @@ function setupEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ========== CHAT WIDGET ==========
+function toggleChat() {
+  const widget = document.getElementById('chatWidget');
+  const toggle = document.getElementById('chatToggle');
+  widget.classList.toggle('show');
+  toggle.style.display = widget.classList.contains('show') ? 'none' : 'flex';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  const messages = document.getElementById('chatMessages');
+
+  // 显示用户消息
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user';
+  userMsg.textContent = message;
+  messages.appendChild(userMsg);
+
+  input.value = '';
+  input.disabled = true;
+
+  const sendBtn = document.querySelector('.chat-send');
+  sendBtn.disabled = true;
+
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    // 调用API
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: message,
+        products: PRODUCTS
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+
+    const data = await response.json();
+
+    // 显示AI回复
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-message assistant';
+    aiMsg.textContent = data.message;
+    messages.appendChild(aiMsg);
+
+    // 如果有推荐的产品，显示产品卡片
+    if (data.recommendedSkus && data.recommendedSkus.length > 0) {
+      const productsHtml = document.createElement('div');
+      productsHtml.style.alignSelf = 'flex-start';
+      productsHtml.style.width = '100%';
+
+      data.recommendedSkus.forEach(sku => {
+        const product = PRODUCTS.find(p => p.styleCode === sku);
+        if (product) {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#f5f3ef;padding:8px;border-radius:6px;margin-top:8px;font-size:12px;cursor:pointer;';
+          card.innerHTML = `
+            <strong>${product.productName}</strong><br>
+            ${product.styleCode} - ¥${product.discountPrice || product.retailPrice}<br>
+            库存: ${product.totalStock}件
+          `;
+          card.onclick = () => {
+            searchQuery = product.styleCode;
+            document.getElementById('searchBox').value = product.styleCode;
+            renderProducts();
+            toggleChat();
+          };
+          productsHtml.appendChild(card);
+        }
+      });
+
+      messages.appendChild(productsHtml);
+    }
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'chat-message assistant';
+    errorMsg.textContent = '抱歉，出现了错误。请稍后重试。';
+    messages.appendChild(errorMsg);
+  }
+
+  input.disabled = false;
+  sendBtn.disabled = false;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// 按Enter发送消息
+document.addEventListener('DOMContentLoaded', () => {
+  const chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+  }
+});
 </script>
 </body>
 </html>
