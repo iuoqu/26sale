@@ -479,9 +479,8 @@ function getProductTags(p) {
   }
 
   // 折扣标签
-  if (p.discountPrice && p.discountPrice < p.retailPrice) {
-    const discount = Math.round((p.discountPrice / p.retailPrice) * 10) / 10;
-    tags.push({ label: `${discount}折`, type: 'discount', color: '#c0392b' });
+  if (p.discount) {
+    tags.push({ label: p.discount, type: 'discount', color: '#c0392b' });
   }
 
   return tags;
