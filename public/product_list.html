@@ -515,6 +515,7 @@ function renderProducts() {
           ${tags.map(tag => `<span class="tag" style="background-color:${tag.color};">${tag.label}</span>`).join('')}
         </div>
         <div class="product-meta">
+          ${p.series ? `<a href="series_overview.html?series=${encodeURIComponent(p.series)}" class="meta-tag series-link" onclick="event.stopPropagation()">${p.series} ↗</a>` : ''}
           <span class="meta-tag style">${p.styleCode}</span>
           ${p.colorCode ? `<span class="meta-tag color">${p.colorCode}</span>` : ''}
           ${sizeText ? `<span class="meta-tag size">${sizeText}</span>` : ''}
