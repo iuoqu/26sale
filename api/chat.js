@@ -4,7 +4,6 @@ const client = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY
 });
 
-// 产品数据会由前端发送过来
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -17,24 +16,50 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing message or products' });
     }
 
-    // 构建产品信息摘要
-    const productSummary = products.map(p => 
-      `${p.productName} (${p.styleCode}) - ${p.category} - ¥${p.discountPrice || p.retailPrice} (库存${p.totalStock}) - 系列:${p.series || '无'}`
-    ).join('\n');
+    // 按系列分组产品
+    const seriesByGroup = {};
+    products.forEach(p => {
+      const series = p.series || '其他';
+      if (!seriesByGroup[series]) {
+        seriesByGroup[series] = [];
+      }
+      seriesByGroup[series].push(p);
+    });
 
-    const systemPrompt = `你是一个专业的时尚购物助手。你需要帮助用户从商品列表中找到最适合他们的产品。
+    // 构建系列信息摘要
+    const seriesSummary = Object.entries(seriesByGroup).map(([series, items]) => {
+      const categories = [...new Set(items.map(p => p.category))].join(',');
+      const priceRange = items.map(p => p.discountPrice || p.retailPrice);
+      return `系列: ${series} | 款数: ${items.length} | 分类: ${categories} | 价格范围: ¥${Math.min(...priceRange)}-¥${Math.max(...priceRange)}`;
+    }).join('\n');
 
-当用户描述他们的需求时：
-1. 理解他们的具体要求（类型、颜色、价格范围、风格等）
-2. 从产品列表中找出最匹配的3-5个产品
-3. 为每个推荐的产品解释为什么它适合用户
+    // 构建产品列表（按系列组织）
+    const productsBySeriesSummary = Object.entries(seriesByGroup).map(([series, items]) => {
+      const productsList = items.slice(0, 3).map(p =>
+        `  - ${p.productName} (${p.styleCode}) - ${p.category}`
+      ).join('\n');
+      return `${series}:\n${productsList}`;
+    }).join('\n\n');
 
-推荐时要简洁有力，突出产品的优点和为什么选择它。
+    const systemPrompt = `你是一个专业的时尚购物顾问。你的目标是帮助用户找到他们最喜欢的产品系列和款式。
 
-以下是完整的产品列表：
-${productSummary}
+**重要：优先推荐系列，而不是单个产品。价格和库存不是主要考虑因素。**
 
-请用中文回复用户。`;
+当用户描述需求时：
+1. 理解他们的风格偏好、产品类型、设计特点等
+2. 推荐最匹配的系列（2-3个最适合的系列）
+3. 对每个推荐的系列，说明为什么它适合用户
+4. 在推荐文案中明确提到系列名称
+
+推荐要点：
+- 重点关注款式、设计风格、产品类型
+- 系列名称必须准确（如：Tabby、Brooklyn、Chain Tabby等）
+- 简洁有力，突出每个系列的独特特点
+
+系列列表和代表款式：
+${productsBySeriesSummary}
+
+请用中文回复用户，推荐2-3个最匹配的系列。`;
 
     const response = await client.messages.create({
       model: 'claude-3-5-sonnet-20241022',
@@ -48,31 +73,40 @@ ${productSummary}
       ]
     });
 
-    const assistantMessage = response.content[0].type === 'text' 
-      ? response.content[0].text 
+    const assistantMessage = response.content[0].type === 'text'
+      ? response.content[0].text
       : '';
 
-    // 从回复中提取推荐的产品 SKU
-    const recommendedSkus = [];
-    const skuRegex = /([A-Z]{2,3}\d{3})/g;
-    const matches = assistantMessage.match(skuRegex) || [];
-    matches.forEach(sku => {
-      if (!recommendedSkus.includes(sku)) {
-        recommendedSkus.push(sku);
+    // 从回复中提取系列名称
+    const recommendedSeries = [];
+    Object.keys(seriesByGroup).forEach(series => {
+      if (assistantMessage.includes(series) && !recommendedSeries.includes(series)) {
+        recommendedSeries.push(series);
       }
+    });
+
+    // 为每个推荐的系列获取代表产品
+    const seriesWithProducts = [];
+    recommendedSeries.forEach(series => {
+      const seriesProducts = seriesByGroup[series] || [];
+      seriesWithProducts.push({
+        name: series,
+        count: seriesProducts.length,
+        products: seriesProducts.slice(0, 3)
+      });
     });
 
     res.status(200).json({
       message: assistantMessage,
-      recommendedSkus: recommendedSkus,
-      productsCount: products.length
+      recommendedSeries: recommendedSeries,
+      seriesWithProducts: seriesWithProducts
     });
 
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to process request',
-      details: error.message 
+      details: error.message
     });
   }
 }
