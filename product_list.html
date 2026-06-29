@@ -17,7 +17,7 @@ body {
 .header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: #fff;
-  padding: 24px 20px;
+  padding: 8px 20px;
   text-align: center;
   position: sticky;
   top: 0;
@@ -25,28 +25,28 @@ body {
   box-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 .header h1 {
-  font-size: 22px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2px;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 0px;
 }
 .header .brand { color: #c9a96e; }
 .header .subtitle {
-  font-size: 13px;
-  opacity: 0.8;
-  letter-spacing: 1px;
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
 }
 .series-overview-btn {
   display: inline-block;
-  margin-top: 8px;
-  padding: 6px 16px;
+  margin-top: 4px;
+  padding: 4px 12px;
   background: #c9a96e;
   color: #1a1a2e;
-  border-radius: 4px;
+  border-radius: 3px;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   transition: background 0.2s;
 }
 .series-overview-btn:hover { background: #d4b574; }
@@ -55,7 +55,7 @@ body {
 .stats-bar {
   background: #fff;
   border-bottom: 1px solid #e8e4dd;
-  padding: 12px 16px;
+  padding: 8px 16px;
   display: flex;
   gap: 16px;
   overflow-x: auto;
@@ -73,14 +73,14 @@ body {
 /* Toolbar */
 .toolbar {
   background: #fff;
-  padding: 10px 16px;
+  padding: 8px 16px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
   border-bottom: 1px solid #e8e4dd;
   position: sticky;
-  top: 104px;
+  top: 50px;
   z-index: 99;
 }
 .search-box {
@@ -114,7 +114,7 @@ body {
   background: #fff;
   border-bottom: 2px solid #e8e4dd;
   position: sticky;
-  top: 156px;
+  top: 98px;
   z-index: 99;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -280,10 +280,10 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 
 /* Mobile */
 @media (max-width: 600px) {
-  .header h1 { font-size: 18px; }
+  .header h1 { font-size: 13px; }
   .product-card { flex-direction: column; align-items: flex-start; }
   .product-price { text-align: left; width: 100%; display: flex; justify-content: space-between; align-items: center; }
-  .tabs { top: 156px; }
+  .tabs { top: 98px; }
 }
 </style>
 </head>
