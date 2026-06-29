@@ -346,7 +346,16 @@ function init() {
   renderStats();
   renderProducts();
   setupEvents();
-  
+
+  // 检查是否从系列页面跳转过来并需要搜索
+  const searchTerm = sessionStorage.getItem('searchAfterReturn');
+  if (searchTerm) {
+    searchQuery = searchTerm;
+    document.getElementById('searchBox').value = searchTerm;
+    sessionStorage.removeItem('searchAfterReturn');
+    renderProducts();
+  }
+
   window.addEventListener('scroll', () => {
     document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
   });

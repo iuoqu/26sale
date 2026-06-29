@@ -65,15 +65,20 @@ body {
 .detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
 .card.expanded .detail { display: block; }
 .detail-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 10px;
+  display: grid; grid-template-columns: 48px 1fr auto;
+  padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 10px; align-items: center;
 }
 .detail-item:last-child { border-bottom: none; }
 .detail-img {
   width: 48px; height: 48px; border-radius: 4px; object-fit: cover;
   background: #f5f3ef; flex-shrink: 0;
 }
-.detail-name { flex: 1; color: #333; }
+.detail-name {
+  color: #2f5496; cursor: pointer; text-decoration: none; transition: color 0.2s;
+  word-break: break-word;
+}
+.detail-name:hover { color: #c9a96e; text-decoration: underline; }
+.detail-sku { font-size: 12px; color: #999; margin-top: 2px; }
 .detail-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
 .detail-price { font-weight: 600; color: #c0392b; font-size: 14px; }
 .detail-retail { text-decoration: line-through; color: #999; font-size: 11px; }
@@ -292,8 +297,11 @@ function render() {
         ${renderInfoBlock(s.info)}
         ${s.items.map(p => `
           <div class="detail-item">
-            ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
-            <span class="detail-name">${p.productName}</span>
+            ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onerror="this.style.display='none'">` : '<div class="detail-img" style="display:flex;align-items:center;justify-content:center;background:#f5f3ef;color:#ccc;font-size:20px;">📷</div>'}
+            <div style="min-width:0;">
+              <div class="detail-name" onclick="goToProduct('${p.styleCode}')">${p.productName}</div>
+              <div class="detail-sku">${p.styleCode}</div>
+            </div>
             <div class="detail-meta">
               ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
               ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
@@ -312,6 +320,12 @@ seriesData = buildSeriesData();
 render();
 setupEvents();
 scrollToSeries();
+
+// 点击SKU跳回产品列表并搜索
+function goToProduct(styleCode) {
+  sessionStorage.setItem('searchAfterReturn', styleCode);
+  window.location.href = 'product_list.html';
+}
 </script>
 </body>
 </html>
