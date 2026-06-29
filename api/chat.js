@@ -22,13 +22,22 @@ if (USE_QWEN) {
   console.error('Warning: Neither DASHSCOPE_API_KEY nor CLAUDE_API_KEY is set');
 }
 
-// 从productName中提取款式类型
+// 从（可能被截断的）productName中提取款式类型。顺序优先，更具体的在前。
 function extractProductType(productName) {
-  const types = ['T SHIRT', 'SWEATSHIRT', 'JACKET', 'SHIRT', 'COAT', 'DRESS', 'SKIRT', 'PANTS', 'SHORTS'];
-  for (const type of types) {
-    if (productName.toUpperCase().includes(type)) {
-      return type;
-    }
+  if (!productName) return null;
+  const u = productName.toUpperCase();
+  const types = [
+    ['T-SHIRT', 'T恤'], ['T SHIRT', 'T恤'], ['T-SH', 'T恤'], ['T SHI', 'T恤'], ['T SH', 'T恤'], [' TEE', 'T恤'], ['TANK', '背心'],
+    ['SWEATSHIRT', '卫衣'], ['HOODIE', '连帽衫'], ['CREWNECK SWEA', '毛衣'], ['SWEATER', '毛衣'], ['CREWNECK', '圆领衫'], ['CARDIGAN', '开衫'],
+    ['POLO', 'Polo衫'], ['POL', 'Polo衫'], ['BLOUSON', '夹克'], ['BLOUSE', '衬衫'], ['BOMBER', '飞行夹克'], ['BOM', '飞行夹克'],
+    ['WINDBREAKER', '风衣'], ['WINDREAKER', '风衣'], ['TRENCH', '风衣'], ['BALMACAAN', '大衣'], ['TRUCKER', '夹克'], ['BLAZER', '西装外套'],
+    ['PUFFER', '羽绒服'], ['DOWN VEST', '羽绒马甲'], ['VEST', '马甲'], ['RACER', '机车夹克'],
+    ['JACKET', '夹克'], ['JACKE', '夹克'], ['JACK', '夹克'], ['LEATHER J', '夹克'], ['JAC', '夹克'],
+    ['CARPENTER PANT', '工装裤'], ['JEANS', '牛仔裤'], ['JEAN', '牛仔裤'], ['TROUSER', '长裤'], ['JOGGER', '运动裤'], ['PANTS', '裤子'], ['PANT', '裤子'], ['SHORTS', '短裤'],
+    ['COAT', '大衣'], ['DRESS', '连衣裙'], ['SKIRT', '半身裙'], ['SHIRT', '衬衫']
+  ];
+  for (const [token, name] of types) {
+    if (u.includes(token)) return name;
   }
   return null;
 }
