@@ -378,12 +378,19 @@ ${seriesSummary}
     // 如果本地关键词没匹配到，尝试用AI回复里提到的系列名来筛选
     // 这样展示的商品就和AI实际推荐的系列对齐
     if (matchedProducts.length === 0 && assistantMessage) {
-      const msgLower = assistantMessage.toLowerCase();
+      let workingMsg = assistantMessage.toLowerCase();
       const allSeries = [...new Set(productList.map(p => p.series).filter(Boolean))];
-      // 找出AI回复里提到的系列（按名字长度倒序，优先匹配更具体的系列名）
-      const mentionedSeries = allSeries
-        .filter(s => msgLower.includes(s.toLowerCase()))
-        .sort((a, b) => b.length - a.length);
+      // 按名字长度倒序：先匹配更长更具体的系列，并把它从文本中"消费"掉，
+      // 这样像 "Rexy" 这种短名只有在 "Rexy Anniversary" 之外独立出现时才会被匹配
+      const mentionedSeries = [];
+      for (const s of allSeries.slice().sort((a, b) => b.length - a.length)) {
+        const sLower = s.toLowerCase();
+        if (workingMsg.includes(sLower)) {
+          mentionedSeries.push(s);
+          // 移除已匹配系列名的所有出现，避免其子串被短系列名误匹配
+          workingMsg = workingMsg.split(sLower).join(' ');
+        }
+      }
 
       if (mentionedSeries.length > 0) {
         productList.forEach(p => {
