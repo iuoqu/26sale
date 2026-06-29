@@ -17,7 +17,7 @@ if (USE_CLAUDE) {
 }
 
 if (USE_QWEN) {
-  console.log('Using Qwen API (qwen-max)');
+  console.log('Using Qwen API (qwen-plus)');
 } else if (!USE_CLAUDE) {
   console.error('Warning: Neither DASHSCOPE_API_KEY nor CLAUDE_API_KEY is set');
 }
@@ -196,7 +196,7 @@ ${seriesSummary}
           'Authorization': `Bearer ${process.env.DASHSCOPE_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'qwen3.7-max',
+          model: 'qwen-plus',
           messages: [
             {
               role: 'system',
