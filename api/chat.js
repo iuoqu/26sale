@@ -56,6 +56,52 @@ function matchesColor(colorCode, userQuery) {
   return false;
 }
 
+// 分析系列的流行度和新鲜度
+function analyzeTrendingSeries(products) {
+  const seriesStats = {};
+
+  products.forEach(p => {
+    const series = p.series || '其他';
+    if (!seriesStats[series]) {
+      seriesStats[series] = {
+        name: series,
+        count: 0,
+        totalStock: 0,
+        avgStock: 0,
+        colors: new Set(),
+        categories: new Set(),
+        types: new Set(),
+        isNew: false,
+        isTrending: false
+      };
+    }
+    seriesStats[series].count++;
+    seriesStats[series].totalStock += p.totalStock;
+    seriesStats[series].colors.add(p.colorCode);
+    seriesStats[series].categories.add(p.category);
+    seriesStats[series].types.add(extractProductType(p.productName));
+  });
+
+  // 计算平均库存和热度指标
+  Object.values(seriesStats).forEach(stats => {
+    stats.avgStock = stats.totalStock / stats.count;
+    stats.colorCount = stats.colors.size;
+    stats.categoryCount = stats.categories.size;
+
+    // 判断是否为新款（款式少但库存新鲜）
+    if (stats.count <= 3 && stats.avgStock <= 5) {
+      stats.isNew = true;
+    }
+
+    // 判断是否为热销款（库存少，说明销售快）
+    if (stats.avgStock < 3 && stats.count >= 3) {
+      stats.isTrending = true;
+    }
+  });
+
+  return seriesStats;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -78,39 +124,51 @@ export default async function handler(req, res) {
       seriesByGroup[series].push(p);
     });
 
-    // 构建系列和产品类型摘要
+    // 分析趋势
+    const trendingAnalysis = analyzeTrendingSeries(products);
+
+    // 找出最新款和最流行款
+    const newSeries = Object.values(trendingAnalysis)
+      .filter(s => s.isNew)
+      .sort((a, b) => a.count - b.count);
+
+    const trendingSeries = Object.values(trendingAnalysis)
+      .filter(s => s.isTrending)
+      .sort((a, b) => a.avgStock - b.avgStock);
+
+    // 构建系列信息摘要，包含热度标签
     const seriesSummary = Object.entries(seriesByGroup).map(([series, items]) => {
+      const stats = trendingAnalysis[series];
+      const tag = stats.isTrending ? '🔥热销' : stats.isNew ? '✨新款' : '';
       const categories = [...new Set(items.map(p => p.category))].join(',');
       const types = [...new Set(items.map(p => extractProductType(p.productName)).filter(Boolean))];
       const colors = [...new Set(items.map(p => p.colorCode).filter(Boolean))];
-      return `${series}: ${items.length}件 | 分类: ${categories} | 款式: ${types.join(',')} | 颜色: ${colors.join(',')}`;
+      return `${tag} ${series}: ${items.length}件 (人均库存${stats.avgStock.toFixed(1)}) | 分类: ${categories} | 款式: ${types.join(',')} | 颜色: ${colors.join(',')}`;
     }).join('\n');
 
-    const systemPrompt = `你是一个专业的时尚购物顾问。用户会描述他们想要的产品（包括款式、颜色、类型等），你的任务是理解他们的需求并提供精准的推荐。
+    const systemPrompt = `你是一个专业的时尚购物顾问。用户会描述他们想要的产品，你的任务是理解需求并提供精准推荐。
 
-用户可能会说：
-- "我要白色的T恤"
-- "黑色的Tabby系列包包"
-- "有没有蓝色的衣服"
-- "推荐一些夹克"
-- "Horse & Carriage系列的所有款式"
+用户可能会问：
+- "白色的T恤"
+- "黑色的Tabby包"
+- "最新最流行的包是什么"
+- "有哪些新款系列"
+- "最热销的夹克"
+- "推荐一些库存充足的衣服"
 
-根据用户需求：
-1. 识别关键词：颜色（黑、白、蓝等）、款式（T恤、夹克、卫衣等）、系列、类别
-2. 基于这些关键词过滤产品
-3. 总结用户需要的产品特征
-4. 推荐所有匹配的产品
+重要信息：
+- 🔥热销：库存少，销售快
+- ✨新款：款式少，刚上市
 
-在你的回复中，明确列出：
-- 匹配的系列名称
-- 匹配的颜色
-- 匹配的款式类型
-- 产品SKU（styleCode）
+根据用户需求分析并推荐：
+1. 识别关键词：颜色、款式、系列、是否问最新/最流行
+2. 如果问最新/最流行，优先推荐带🔥或✨标签的系列
+3. 在回复中明确列出推荐的系列和产品SKU
 
-系列和产品类型信息：
+系列热度信息：
 ${seriesSummary}
 
-用中文回复，并在推荐中包含所有匹配的SKU代码。`;
+用中文回复。`;
 
     const response = await client.messages.create({
       model: 'claude-3-5-sonnet-20241022',
@@ -128,54 +186,91 @@ ${seriesSummary}
       ? response.content[0].text
       : '';
 
-    // 解析用户需求（颜色、类型等）
+    // 解析用户需求
     const userQueryLower = message.toLowerCase();
+    const isAskingTrending = /最新|最流行|热销|新款|推荐什么|什么最/.test(userQueryLower);
 
-    // 提取所有匹配的产品
-    const matchedProducts = [];
+    // 如果问最新最流行，优先返回相关系列的产品
+    let matchedProducts = [];
 
-    products.forEach(p => {
-      let matches = false;
+    if (isAskingTrending && (userQueryLower.includes('包') || userQueryLower.includes('包包'))) {
+      // 返回最热销的包包系列
+      const bagSeries = trendingSeries
+        .filter(s => Object.values(seriesByGroup[s.name] || []).some(p => p.category && p.category.includes('包')))
+        .slice(0, 3);
 
-      // 检查是否匹配用户的颜色需求
+      bagSeries.forEach(s => {
+        matchedProducts.push(...(seriesByGroup[s.name] || []));
+      });
+
+      // 如果没有热销包，返回所有包
+      if (matchedProducts.length === 0) {
+        matchedProducts = products.filter(p => p.category && p.category.includes('包'));
+      }
+    } else if (isAskingTrending && (userQueryLower.includes('衣') || userQueryLower.includes('衣服'))) {
+      // 返回最热销的衣服系列
+      const clothingSeries = trendingSeries
+        .filter(s => Object.values(seriesByGroup[s.name] || []).some(p => p.category && p.category.includes('衣')))
+        .slice(0, 3);
+
+      clothingSeries.forEach(s => {
+        matchedProducts.push(...(seriesByGroup[s.name] || []));
+      });
+
+      if (matchedProducts.length === 0) {
+        matchedProducts = products.filter(p => p.category && p.category.includes('衣'));
+      }
+    } else if (isAskingTrending && (userQueryLower.includes('鞋') || userQueryLower.includes('shoes'))) {
+      // 返回最热销的鞋类系列
+      const shoeSeries = trendingSeries
+        .filter(s => Object.values(seriesByGroup[s.name] || []).some(p => p.category && p.category.includes('鞋')))
+        .slice(0, 3);
+
+      shoeSeries.forEach(s => {
+        matchedProducts.push(...(seriesByGroup[s.name] || []));
+      });
+
+      if (matchedProducts.length === 0) {
+        matchedProducts = products.filter(p => p.category && p.category.includes('鞋'));
+      }
+    } else {
+      // 常规搜索逻辑
       const hasColorQuery = /黑|白|蓝|红|绿|灰|棕|米|粉|紫|黄|蓝色|黑色|白色|绿色|红色|灰色|棕色|米色|粉色|紫色|黄色/.test(userQueryLower);
 
-      if (hasColorQuery) {
-        // 如果用户提到了颜色，只返回颜色匹配的产品
-        if (matchesColor(p.colorCode, userQueryLower)) {
-          matches = true;
-        }
-      } else {
-        // 如果没有提到颜色，检查其他维度
-        const series = p.series || '其他';
+      products.forEach(p => {
+        let matches = false;
 
-        // 检查系列是否匹配
-        if (userQueryLower.includes(series.toLowerCase())) {
-          matches = true;
+        if (hasColorQuery) {
+          if (matchesColor(p.colorCode, userQueryLower)) {
+            matches = true;
+          }
+        } else {
+          const series = p.series || '其他';
+
+          if (userQueryLower.includes(series.toLowerCase())) {
+            matches = true;
+          }
+
+          const productType = extractProductType(p.productName);
+          if (productType && userQueryLower.includes(productType.toLowerCase())) {
+            matches = true;
+          }
+
+          if (p.category && userQueryLower.includes(p.category.toLowerCase())) {
+            matches = true;
+          }
+
+          if (!matches && !userQueryLower.includes('系列') && !userQueryLower.includes('包') &&
+              !userQueryLower.includes('衣') && !userQueryLower.includes('鞋')) {
+            matches = true;
+          }
         }
 
-        // 检查款式类型是否匹配
-        const productType = extractProductType(p.productName);
-        if (productType && userQueryLower.includes(productType.toLowerCase())) {
-          matches = true;
+        if (matches) {
+          matchedProducts.push(p);
         }
-
-        // 检查类别是否匹配
-        if (p.category && userQueryLower.includes(p.category.toLowerCase())) {
-          matches = true;
-        }
-
-        // 如果既没有系列也没有款式也没有类别，说明是模糊查询，返回更多结果
-        if (!matches && !userQueryLower.includes('系列') && !userQueryLower.includes('包') &&
-            !userQueryLower.includes('衣') && !userQueryLower.includes('鞋')) {
-          matches = true;
-        }
-      }
-
-      if (matches) {
-        matchedProducts.push(p);
-      }
-    });
+      });
+    }
 
     // 按系列和颜色组织结果
     const resultBySeriesAndColor = {};
@@ -191,8 +286,7 @@ ${seriesSummary}
     });
 
     // 提取所有匹配产品的SKU
-    const skus = matchedProducts.map(p => p.styleCode);
-    const uniqueSkus = [...new Set(skus)];
+    const uniqueSkus = [...new Set(matchedProducts.map(p => p.styleCode))];
 
     res.status(200).json({
       message: assistantMessage,
@@ -200,7 +294,11 @@ ${seriesSummary}
       matchCount: matchedProducts.length,
       uniqueSkus: uniqueSkus,
       groupedBySeriesAndColor: resultBySeriesAndColor,
-      userQuery: message
+      userQuery: message,
+      trending: {
+        newSeries: newSeries.slice(0, 5),
+        trendingSeries: trendingSeries.slice(0, 5)
+      }
     });
 
   } catch (error) {
