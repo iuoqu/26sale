@@ -337,9 +337,18 @@ function init() {
   renderSeriesFilter();
   renderTabs();
   renderStats();
+
+  // 检查是否需要自动搜索SKU
+  const searchAfterReturn = sessionStorage.getItem('searchAfterReturn');
+  if (searchAfterReturn) {
+    searchQuery = searchAfterReturn;
+    document.getElementById('searchBox').value = searchAfterReturn;
+    sessionStorage.removeItem('searchAfterReturn');
+  }
+
   renderProducts();
   setupEvents();
-  
+
   window.addEventListener('scroll', () => {
     document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
   });
@@ -389,12 +398,12 @@ function getFilteredProducts() {
   
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(p => 
-      p.styleCode.toLowerCase().includes(q) ||
-      p.colorCode.toLowerCase().includes(q) ||
-      p.productName.toLowerCase().includes(q) ||
+    filtered = filtered.filter(p =>
+      (p.styleCode && p.styleCode.toLowerCase().includes(q)) ||
+      (p.colorCode && p.colorCode.toLowerCase().includes(q)) ||
+      (p.productName && p.productName.toLowerCase().includes(q)) ||
       (p.sizeDisplay && p.sizeDisplay.toLowerCase().includes(q)) ||
-      p.size.toLowerCase().includes(q) ||
+      (p.size && p.size.toLowerCase().includes(q)) ||
       (p.series && p.series.toLowerCase().includes(q))
     );
   }

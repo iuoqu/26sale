@@ -65,16 +65,23 @@ body {
 .detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
 .card.expanded .detail { display: block; }
 .detail-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 12px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef;
 }
 .detail-item:last-child { border-bottom: none; }
-.detail-img {
-  width: 48px; height: 48px; border-radius: 4px; object-fit: cover;
-  background: #f5f3ef; flex-shrink: 0;
+.detail-name {
+  color: #1a1a2e; font-weight: 600; cursor: pointer;
+  transition: color 0.2s; padding-bottom: 8px;
 }
-.detail-name { flex: 1; color: #333; }
-.detail-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+.detail-name:hover { color: #c9a96e; }
+.detail-content {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.detail-img {
+  width: 60px; height: 60px; border-radius: 4px; object-fit: cover;
+  background: #f5f3ef; flex-shrink: 0; cursor: zoom-in;
+}
+.detail-meta { display: flex; gap: 12px; align-items: center; flex: 1; flex-wrap: wrap; }
 .detail-price { font-weight: 600; color: #c0392b; font-size: 14px; }
 .detail-retail { text-decoration: line-through; color: #999; font-size: 11px; }
 .detail-stock { font-size: 11px; color: #888; }
@@ -285,20 +292,43 @@ function render() {
         ${renderInfoBlock(s.info)}
         ${s.items.map(p => `
           <div class="detail-item">
-            ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
-            <span class="detail-name">${p.productName}</span>
-            <div class="detail-meta">
-              ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
-              ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
-              ${p.discountPrice ? `<span class="detail-retail">¥${p.retailPrice.toLocaleString()}</span>` : ''}
-              <span class="detail-price">¥${(p.discountPrice||p.retailPrice).toLocaleString()}</span>
-              <span class="detail-stock">×${p.totalStock}</span>
+            <div class="detail-name" onclick="goToProduct('${p.styleCode}')">${p.productName}</div>
+            <div class="detail-content">
+              ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onclick="openImageModal(this.src)" onerror="this.style.display='none'">` : ''}
+              <div class="detail-meta">
+                <span class="detail-sizes">${p.styleCode}</span>
+                ${p.colorCode ? `<span class="detail-sizes">${p.colorCode}</span>` : ''}
+                ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
+                ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
+              </div>
+              <div style="text-align: right; white-space: nowrap;">
+                ${p.discountPrice ? `<div class="detail-retail">¥${p.retailPrice.toLocaleString()}</div>` : ''}
+                <div class="detail-price">¥${(p.discountPrice||p.retailPrice).toLocaleString()}</div>
+                <div class="detail-stock">库存: ${p.totalStock}</div>
+              </div>
             </div>
           </div>
         `).join('')}
       </div>
     </div>
   `).join('');
+}
+
+function goToProduct(styleCode) {
+  sessionStorage.setItem('searchAfterReturn', styleCode);
+  window.location.href = 'product_list.html';
+}
+
+function openImageModal(src) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:90%;max-height:90%;object-fit:contain;';
+  modal.appendChild(img);
+  modal.onclick = () => modal.remove();
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.remove(); }, { once: true });
+  document.body.appendChild(modal);
 }
 
 seriesData = buildSeriesData();
