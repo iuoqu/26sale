@@ -181,8 +181,10 @@ ${seriesSummary}
 
     // 使用Qwen或Claude
     if (USE_QWEN) {
-      // 调用阿里云Qwen API (使用自定义端点)
-      const qwenUrl = 'https://ws-nw9gantac6nmtvhr.cn-beijing.maas.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+      // 调用Qwen API - 使用OpenAI兼容模式
+      const qwenUrl = 'https://ws-nw9gantac6nmtvhr.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions';
+
+      console.log('Calling Qwen OpenAI compatible API...');
 
       const qwenResponse = await fetch(qwenUrl, {
         method: 'POST',
@@ -202,23 +204,26 @@ ${seriesSummary}
               content: message
             }
           ],
-          parameters: {
-            max_tokens: 1500
-          }
+          max_tokens: 1500,
+          temperature: 0.7
         })
       });
 
+      console.log('Qwen response status:', qwenResponse.status);
+
       if (!qwenResponse.ok) {
         const errorText = await qwenResponse.text();
-        console.error('Qwen API error:', errorText);
+        console.error('Qwen API error response:', errorText);
         throw new Error(`Qwen API error ${qwenResponse.status}: ${errorText}`);
       }
 
       const qwenData = await qwenResponse.json();
-      if (qwenData.output?.text) {
-        assistantMessage = qwenData.output.text;
+      console.log('Qwen response data:', qwenData);
+
+      if (qwenData.choices?.[0]?.message?.content) {
+        assistantMessage = qwenData.choices[0].message.content;
       } else {
-        console.error('Unexpected Qwen response:', qwenData);
+        console.error('Unexpected Qwen response format:', qwenData);
         throw new Error('无法从 Qwen 获取有效回复');
       }
     } else if (USE_CLAUDE && claudeClient) {
