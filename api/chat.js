@@ -218,13 +218,25 @@ ${seriesSummary}
       }
 
       const qwenData = await qwenResponse.json();
-      console.log('Qwen response data:', qwenData);
+      console.log('Qwen full response:', JSON.stringify(qwenData, null, 2));
 
+      // 尝试多种可能的响应格式
       if (qwenData.choices?.[0]?.message?.content) {
         assistantMessage = qwenData.choices[0].message.content;
+        console.log('✓ Found in choices[0].message.content');
+      } else if (qwenData.output?.text) {
+        assistantMessage = qwenData.output.text;
+        console.log('✓ Found in output.text');
+      } else if (qwenData.choices?.[0]?.text) {
+        assistantMessage = qwenData.choices[0].text;
+        console.log('✓ Found in choices[0].text');
+      } else if (qwenData.data?.text) {
+        assistantMessage = qwenData.data.text;
+        console.log('✓ Found in data.text');
       } else {
-        console.error('Unexpected Qwen response format:', qwenData);
-        throw new Error('无法从 Qwen 获取有效回复');
+        console.error('Qwen response structure:', Object.keys(qwenData));
+        console.error('Choices:', qwenData.choices);
+        throw new Error(`Qwen 格式未知。返回数据: ${JSON.stringify(qwenData)}`);
       }
     } else if (USE_CLAUDE && claudeClient) {
       // 调用Claude API
