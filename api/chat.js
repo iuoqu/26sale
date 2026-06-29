@@ -186,6 +186,9 @@ ${seriesSummary}
 
       console.log('Calling Qwen OpenAI compatible API...');
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
       const qwenResponse = await fetch(qwenUrl, {
         method: 'POST',
         headers: {
@@ -206,8 +209,11 @@ ${seriesSummary}
           ],
           max_tokens: 1500,
           temperature: 0.7
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       console.log('Qwen response status:', qwenResponse.status);
 
@@ -399,6 +405,14 @@ ${seriesSummary}
     console.error('Chat API Error:', error);
     console.error('Error stack:', error.stack);
 
+    // 检查是否是超时/中止错误
+    if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+      return res.status(504).json({
+        error: 'Request timeout',
+        message: '请求超时，请重试。'
+      });
+    }
+
     // 检查是否是API key问题
     if (error.message && error.message.includes('401')) {
       return res.status(401).json({
@@ -406,13 +420,6 @@ ${seriesSummary}
         message: USE_QWEN
           ? 'DASHSCOPE_API_KEY 无效或未授权'
           : 'CLAUDE_API_KEY 无效或未授权'
-      });
-    }
-
-    if (error.message && error.message.includes('timeout')) {
-      return res.status(504).json({
-        error: 'Request timeout',
-        message: '请求超时，请重试。'
       });
     }
 
