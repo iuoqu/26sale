@@ -265,11 +265,61 @@ ${seriesSummary}
     // 提取所有匹配的产品
     const matchedProducts = [];
 
-    // 检查用户是否指定了颜色
+    // 检查用户是否指定了颜色和类型
     const hasColorQuery = /黑|白|蓝|红|绿|灰|棕|米|粉|紫|黄|蓝色|黑色|白色|绿色|红色|灰色|棕色|米色|粉色|紫色|黄色/.test(userQueryLower);
+    const hasTypeQuery = /卫衣|夹克|t恤|外套|大衣|连衣裙|裙子|裤子|短裤|衬衣|包|鞋/.test(userQueryLower);
 
-    if (hasColorQuery) {
-      // 颜色优先级最高
+    // 如果同时指定了颜色和类型，需要都匹配
+    if (hasColorQuery && hasTypeQuery) {
+      productList.forEach(p => {
+        // 先检查颜色
+        if (!matchesColor(p.colorCode, userQueryLower)) return;
+
+        let typeMatches = false;
+        const productType = extractProductType(p.productName);
+
+        // 英文类型匹配
+        if (productType && userQueryLower.includes(productType.toLowerCase())) {
+          typeMatches = true;
+        }
+
+        // 中文类型匹配
+        if (!typeMatches) {
+          const typeMap = {
+            '卫衣': 'SWEATSHIRT',
+            '夹克': 'JACKET',
+            't恤': 'T SHIRT',
+            '外套': 'JACKET',
+            '大衣': 'COAT',
+            '连衣裙': 'DRESS',
+            '裙子': 'SKIRT',
+            '裤子': 'PANTS',
+            '短裤': 'SHORTS',
+            '衬衣': 'SHIRT'
+          };
+
+          for (const [cn, en] of Object.entries(typeMap)) {
+            if (userQueryLower.includes(cn) && p.productName.toUpperCase().includes(en)) {
+              typeMatches = true;
+              break;
+            }
+          }
+        }
+
+        // 包和鞋的特殊匹配
+        if (!typeMatches && userQueryLower.includes('包') && p.category && p.category.includes('包')) {
+          typeMatches = true;
+        }
+        if (!typeMatches && userQueryLower.includes('鞋') && p.category && p.category.includes('鞋')) {
+          typeMatches = true;
+        }
+
+        if (typeMatches) {
+          matchedProducts.push(p);
+        }
+      });
+    } else if (hasColorQuery) {
+      // 只指定了颜色
       productList.forEach(p => {
         if (matchesColor(p.colorCode, userQueryLower)) {
           matchedProducts.push(p);
