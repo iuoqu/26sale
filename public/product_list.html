@@ -180,6 +180,21 @@ body {
   margin-bottom: 4px;
   line-height: 1.4;
 }
+.product-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
 .product-meta {
   font-size: 12px;
   color: #999;
@@ -502,6 +517,49 @@ function clearSearch() {
   renderProducts();
 }
 
+function getProductTags(p) {
+  const tags = [];
+
+  // Style type detection
+  const types = ['T SHIRT', 'SWEATSHIRT', 'JACKET', 'SHIRT', 'COAT', 'DRESS', 'SKIRT', 'PANTS', 'SHORTS'];
+  for (const type of types) {
+    if (p.productName.toUpperCase().includes(type)) {
+      tags.push({ label: type, type: 'style', color: '#8B6F47' });
+      break;
+    }
+  }
+
+  // Color mapping to Chinese names
+  const colorMap = {
+    'BLK': '黑', 'WHT': '白', 'BLU': '蓝', 'RED': '红', 'GRN': '绿',
+    'HGR': '灰绿', 'BRN': '棕', 'GRY': '灰', 'NAV': '深蓝', 'BEI': '米',
+    'PRP': '紫', 'YEL': '黄', 'PNK': '粉', 'LHBLK': '浅黑', 'B4': '驼', 'MPL': '枫叶'
+  };
+
+  if (p.colorCode) {
+    let colorName = p.colorCode;
+    for (const [code, name] of Object.entries(colorMap)) {
+      if (p.colorCode.includes(code)) {
+        colorName = name;
+        break;
+      }
+    }
+    tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
+  }
+
+  // Series tag
+  if (p.series) {
+    tags.push({ label: p.series, type: 'series', color: '#d4b574' });
+  }
+
+  // Discount tag
+  if (p.discount) {
+    tags.push({ label: p.discount, type: 'discount', color: '#c0392b' });
+  }
+
+  return tags;
+}
+
 function buildSeriesList() {
   const seriesSet = new Set(PRODUCTS.map(p => p.series).filter(Boolean));
   seriesList = ['全部系列', ...Array.from(seriesSet).sort()];
@@ -617,12 +675,16 @@ function renderProducts() {
     const stockClass = totalStock <= 1 ? 'stock-low' : 'stock-ok';
     const stockText = totalStock <= 1 ? `仅剩${totalStock}件` : `库存${totalStock}`;
     const sizeText = p.sizeDisplay || (p.size ? p.size : '');
-    
+    const tags = getProductTags(p);
+
     return `
     <div class="product-card ${genderClass}">
       ${p.image ? `<img src="${p.image}" class="product-thumb" alt="" loading="lazy" style="cursor:zoom-in;" onclick="openImageModal(this.src)" onerror="this.style.display='none'">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:24px;">📷</div>`}
       <div class="product-info">
         <div class="product-name">${p.productName}</div>
+        <div class="product-tags">
+          ${tags.map(tag => `<span class="tag" style="background-color:${tag.color};">${tag.label}</span>`).join('')}
+        </div>
         <div class="product-meta">
           ${p.series ? `<a href="series_overview.html?series=${encodeURIComponent(p.series)}" class="meta-tag series-link" onclick="event.stopPropagation()">${p.series} ↗</a>` : ''}
           <span class="meta-tag style">${p.styleCode}</span>

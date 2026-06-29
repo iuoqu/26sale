@@ -129,6 +129,118 @@ body {
   cursor: pointer; background: none; border: none; padding: 0;
 }
 
+/* Chat Widget */
+.chat-toggle {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 90;
+}
+.chat-toggle:hover { background: #d4b574; transform: scale(1.1); }
+
+.chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 40px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 1001;
+}
+.chat-widget.show { display: flex; }
+
+.chat-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  color: #fff;
+  padding: 16px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-message {
+  padding: 10px 12px;
+  border-radius: 8px;
+  max-width: 90%;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.chat-message.user {
+  background: #1a1a2e;
+  color: #fff;
+  align-self: flex-end;
+}
+.chat-message.ai {
+  background: #f5f3ef;
+  color: #1a1a2e;
+  align-self: flex-start;
+}
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e8e4dd;
+  background: #fafafa;
+  border-radius: 0 0 12px 12px;
+}
+.chat-input {
+  flex: 1;
+  border: 1px solid #d4cfc7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+}
+.chat-input:focus { border-color: #c9a96e; }
+.chat-send {
+  padding: 8px 16px;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.chat-send:hover { background: #d4b574; }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
 }
@@ -362,6 +474,90 @@ function closeImageModal() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeImageModal();
 });
+
+// ========== CHAT WIDGET ==========
+function toggleChat() {
+  const widget = document.getElementById('chatWidget');
+  const toggle = document.getElementById('chatToggle');
+  widget.classList.toggle('show');
+  toggle.style.display = widget.classList.contains('show') ? 'none' : 'flex';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  const messages = document.getElementById('chatMessages');
+
+  // 显示用户消息
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user';
+  userMsg.textContent = message;
+  messages.appendChild(userMsg);
+
+  input.value = '';
+  input.disabled = true;
+
+  const sendBtn = document.querySelector('.chat-send');
+  sendBtn.disabled = true;
+
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-message ai';
+    aiMsg.textContent = data.reply;
+    messages.appendChild(aiMsg);
+    messages.scrollTop = messages.scrollHeight;
+  } catch (error) {
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'chat-message ai';
+    errorMsg.textContent = '抱歉，出错了。请稍后重试。';
+    messages.appendChild(errorMsg);
+  } finally {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('chatInput');
+  if (input) {
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+  }
+});
 </script>
+
+<!-- AI Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+  <div class="chat-header">
+    <span>🤖 AI 购物助手</span>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chatInput" placeholder="ask me anything...">
+    <button class="chat-send" onclick="sendChatMessage()">Send</button>
+  </div>
+</div>
+
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬 AI 助手</button>
+
 </body>
 </html>
