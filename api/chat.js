@@ -375,6 +375,25 @@ ${seriesSummary}
       }
     }
 
+    // 如果本地关键词没匹配到，尝试用AI回复里提到的系列名来筛选
+    // 这样展示的商品就和AI实际推荐的系列对齐
+    if (matchedProducts.length === 0 && assistantMessage) {
+      const msgLower = assistantMessage.toLowerCase();
+      const allSeries = [...new Set(productList.map(p => p.series).filter(Boolean))];
+      // 找出AI回复里提到的系列（按名字长度倒序，优先匹配更具体的系列名）
+      const mentionedSeries = allSeries
+        .filter(s => msgLower.includes(s.toLowerCase()))
+        .sort((a, b) => b.length - a.length);
+
+      if (mentionedSeries.length > 0) {
+        productList.forEach(p => {
+          if (p.series && mentionedSeries.includes(p.series)) {
+            matchedProducts.push(p);
+          }
+        });
+      }
+    }
+
     // 如果仍然没有结果，返回全部
     if (matchedProducts.length === 0) {
       matchedProducts.push(...products);
