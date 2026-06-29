@@ -9,3 +9,5 @@ products_merged.json
 series_info.json
 nul
 .vercelignore
+node_modules/
+package-lock.json
