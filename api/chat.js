@@ -1,12 +1,26 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-if (!process.env.CLAUDE_API_KEY) {
-  console.error('Warning: CLAUDE_API_KEY is not set');
+const USE_QWEN = !!process.env.DASHSCOPE_API_KEY;
+const USE_CLAUDE = !!process.env.CLAUDE_API_KEY && !USE_QWEN;
+
+let claudeClient = null;
+
+if (USE_CLAUDE) {
+  try {
+    claudeClient = new Anthropic({
+      apiKey: process.env.CLAUDE_API_KEY
+    });
+    console.log('Using Claude API');
+  } catch (e) {
+    console.error('Failed to initialize Claude:', e.message);
+  }
 }
 
-const client = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY || 'sk-placeholder'
-});
+if (USE_QWEN) {
+  console.log('Using Qwen API (qwen-max)');
+} else if (!USE_CLAUDE) {
+  console.error('Warning: Neither DASHSCOPE_API_KEY nor CLAUDE_API_KEY is set');
+}
 
 // 从productName中提取款式类型
 function extractProductType(productName) {
@@ -163,21 +177,62 @@ ${seriesSummary}
 用中文回复，友好热情地回答问题。`;
     }
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1500,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: message
-        }
-      ]
-    });
+    let assistantMessage = '';
 
-    const assistantMessage = response.content[0].type === 'text'
-      ? response.content[0].text
-      : '';
+    // 使用Qwen或Claude
+    if (USE_QWEN) {
+      // 调用阿里云Qwen API
+      const qwenResponse = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.DASHSCOPE_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'qwen-max',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          parameters: {
+            max_tokens: 1500
+          }
+        })
+      });
+
+      if (!qwenResponse.ok) {
+        const errorText = await qwenResponse.text();
+        throw new Error(`Qwen API error ${qwenResponse.status}: ${errorText}`);
+      }
+
+      const qwenData = await qwenResponse.json();
+      assistantMessage = qwenData.output?.text || '无法生成回复';
+    } else if (USE_CLAUDE && claudeClient) {
+      // 调用Claude API
+      const response = await claudeClient.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: message
+          }
+        ]
+      });
+
+      assistantMessage = response.content[0].type === 'text'
+        ? response.content[0].text
+        : '';
+    } else {
+      throw new Error('No LLM API configured. Please set DASHSCOPE_API_KEY or CLAUDE_API_KEY');
+    }
 
     // 解析用户需求（颜色、类型等）
     const userQueryLower = message.toLowerCase();
