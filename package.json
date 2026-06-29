@@ -2,6 +2,7 @@
   "name": "26sale",
   "version": "1.0.0",
   "description": "Private Sale 2026 SS Collection",
+  "type": "module",
   "scripts": {
     "dev": "vercel dev"
   },
