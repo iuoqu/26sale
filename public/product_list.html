@@ -372,6 +372,23 @@ function openImageModal(src) {
   document.body.appendChild(modal);
 }
 
+function performSearch() {
+  searchQuery = document.getElementById('searchBox').value.trim();
+  renderProducts();
+}
+
+function clearSearch() {
+  searchQuery = '';
+  activeCategory = '全部';
+  activeSeries = '';
+  document.getElementById('searchBox').value = '';
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.cat === '全部');
+  });
+  document.getElementById('seriesFilter').value = '';
+  renderProducts();
+}
+
 function init() {
   buildSeriesList();
   renderSeriesFilter();
