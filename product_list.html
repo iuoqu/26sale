@@ -698,33 +698,56 @@ async function sendChatMessage() {
     aiMsg.textContent = data.message;
     messages.appendChild(aiMsg);
 
-    // 如果有推荐的产品，显示产品卡片
-    if (data.recommendedSkus && data.recommendedSkus.length > 0) {
-      const productsHtml = document.createElement('div');
-      productsHtml.style.alignSelf = 'flex-start';
-      productsHtml.style.width = '100%';
+    // 显示匹配结果统计
+    if (data.matchCount > 0) {
+      const summary = document.createElement('div');
+      summary.style.cssText = 'align-self:flex-start;background:#e8f0fe;padding:10px 12px;border-radius:6px;margin-top:8px;font-size:12px;color:#1a1a2e;width:100%;';
+      summary.innerHTML = `✅ 找到 <strong>${data.matchCount}</strong> 个匹配产品`;
+      messages.appendChild(summary);
+    }
 
-      data.recommendedSkus.forEach(sku => {
-        const product = PRODUCTS.find(p => p.styleCode === sku);
-        if (product) {
+    // 显示所有匹配的产品卡片
+    if (data.matchedProducts && data.matchedProducts.length > 0) {
+      const productsContainer = document.createElement('div');
+      productsContainer.style.cssText = 'align-self:flex-start;width:100%;display:flex;flex-direction:column;gap:8px;margin-top:10px;';
+
+      // 按系列分组显示
+      const groupedBySeries = {};
+      data.matchedProducts.forEach(p => {
+        const series = p.series || '其他';
+        if (!groupedBySeries[series]) {
+          groupedBySeries[series] = [];
+        }
+        groupedBySeries[series].push(p);
+      });
+
+      Object.entries(groupedBySeries).forEach(([series, items]) => {
+        const seriesTitle = document.createElement('div');
+        seriesTitle.style.cssText = 'font-size:12px;font-weight:600;color:#c9a96e;margin-top:6px;';
+        seriesTitle.textContent = `📦 ${series}`;
+        productsContainer.appendChild(seriesTitle);
+
+        items.forEach(product => {
           const card = document.createElement('div');
-          card.style.cssText = 'background:#f5f3ef;padding:8px;border-radius:6px;margin-top:8px;font-size:12px;cursor:pointer;';
+          card.style.cssText = 'background:#f5f3ef;padding:8px;border-radius:6px;font-size:11px;cursor:pointer;border-left:3px solid #c9a96e;transition:all 0.2s;';
+          const price = product.discountPrice || product.retailPrice;
           card.innerHTML = `
             <strong>${product.productName}</strong><br>
-            ${product.styleCode} - ¥${product.discountPrice || product.retailPrice}<br>
-            库存: ${product.totalStock}件
+            <span style="color:#999;">${product.styleCode} | ${product.colorCode || '无'} | ¥${price}</span>
           `;
+          card.onmouseover = () => card.style.background = '#ede9e1';
+          card.onmouseout = () => card.style.background = '#f5f3ef';
           card.onclick = () => {
             searchQuery = product.styleCode;
             document.getElementById('searchBox').value = product.styleCode;
             renderProducts();
             toggleChat();
           };
-          productsHtml.appendChild(card);
-        }
+          productsContainer.appendChild(card);
+        });
       });
 
-      messages.appendChild(productsHtml);
+      messages.appendChild(productsContainer);
     }
 
   } catch (error) {
