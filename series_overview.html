@@ -65,21 +65,23 @@ body {
 .detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
 .card.expanded .detail { display: block; }
 .detail-item {
-  display: grid; grid-template-columns: 48px 1fr auto;
-  padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 10px; align-items: center;
+  display: flex; flex-direction: column;
+  padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 6px;
 }
 .detail-item:last-child { border-bottom: none; }
+.detail-name-row { display: flex; gap: 8px; align-items: flex-start; }
+.detail-name {
+  color: #2f5496; cursor: pointer; text-decoration: none; transition: color 0.2s;
+  flex: 1; word-break: break-word;
+}
+.detail-name:hover { color: #c9a96e; text-decoration: underline; }
+.detail-sku { font-size: 12px; color: #999; }
+.detail-meta-row { display: flex; gap: 8px; align-items: center; }
 .detail-img {
   width: 48px; height: 48px; border-radius: 4px; object-fit: cover;
   background: #f5f3ef; flex-shrink: 0;
 }
-.detail-name {
-  color: #2f5496; cursor: pointer; text-decoration: none; transition: color 0.2s;
-  word-break: break-word;
-}
-.detail-name:hover { color: #c9a96e; text-decoration: underline; }
-.detail-sku { font-size: 12px; color: #999; margin-top: 2px; }
-.detail-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+.detail-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .detail-price { font-weight: 600; color: #c0392b; font-size: 14px; }
 .detail-retail { text-decoration: line-through; color: #999; font-size: 11px; }
 .detail-stock { font-size: 11px; color: #888; }
@@ -115,6 +117,18 @@ body {
 .back-link { display: inline-block; margin: 12px 0; color: #1a1a2e; text-decoration: none; font-size: 14px; }
 .back-link:hover { color: #c9a96e; }
 
+/* Image Modal */
+.image-modal {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
+}
+.image-modal.show { display: flex; }
+.image-modal img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 4px; }
+.image-modal-close {
+  position: absolute; top: 20px; right: 30px; color: #fff; font-size: 32px;
+  cursor: pointer; background: none; border: none; padding: 0;
+}
+
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
 }
@@ -133,6 +147,11 @@ if (!sessionStorage.getItem('authenticated')) {
   window.location.href = 'login.html';
 }
 </script>
+
+<div id="imageModal" class="image-modal" onclick="if(event.target.id==='imageModal')closeImageModal()">
+  <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
+  <img id="modalImage" src="" alt="">
+</div>
 
 <div class="container">
   <a href="product_list.html" class="back-link">← BACK TO PRODUCT LIST</a>
@@ -297,17 +316,19 @@ function render() {
         ${renderInfoBlock(s.info)}
         ${s.items.map(p => `
           <div class="detail-item">
-            ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onerror="this.style.display='none'">` : '<div class="detail-img" style="display:flex;align-items:center;justify-content:center;background:#f5f3ef;color:#ccc;font-size:20px;">📷</div>'}
-            <div style="min-width:0;">
-              <div class="detail-name" onclick="goToProduct('${p.styleCode}')">${p.productName}</div>
-              <div class="detail-sku">${p.styleCode}</div>
-            </div>
-            <div class="detail-meta">
-              ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
-              ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
-              ${p.discountPrice ? `<span class="detail-retail">¥${p.retailPrice.toLocaleString()}</span>` : ''}
-              <span class="detail-price">¥${(p.discountPrice||p.retailPrice).toLocaleString()}</span>
-              <span class="detail-stock">×${p.totalStock}</span>
+            <div class="detail-name" onclick="goToProduct('${p.styleCode}')">${p.productName}</div>
+            <div class="detail-meta-row">
+              ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onclick="openImageModal('${p.image}')" style="cursor:zoom-in;" title="Click to enlarge" onerror="this.style.display='none'">` : '<div class="detail-img" style="display:flex;align-items:center;justify-content:center;background:#f5f3ef;color:#ccc;font-size:20px;">📷</div>'}
+              <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1;">
+                <span class="detail-sku">${p.styleCode}</span>
+                ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
+                ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
+              </div>
+              <div style="text-align:right;white-space:nowrap;">
+                ${p.discountPrice ? `<div class="detail-retail">¥${p.retailPrice.toLocaleString()}</div>` : ''}
+                <div class="detail-price">¥${(p.discountPrice||p.retailPrice).toLocaleString()}</div>
+                <span class="detail-stock" style="font-size:12px;color:#888;">×${p.totalStock}</span>
+              </div>
             </div>
           </div>
         `).join('')}
@@ -326,6 +347,21 @@ function goToProduct(styleCode) {
   sessionStorage.setItem('searchAfterReturn', styleCode);
   window.location.href = 'product_list.html';
 }
+
+// 图片放大功能
+function openImageModal(src) {
+  document.getElementById('modalImage').src = src;
+  document.getElementById('imageModal').classList.add('show');
+}
+
+function closeImageModal() {
+  document.getElementById('imageModal').classList.remove('show');
+}
+
+// 按ESC关闭modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeImageModal();
+});
 </script>
 </body>
 </html>
