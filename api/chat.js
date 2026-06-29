@@ -187,7 +187,7 @@ ${seriesSummary}
       console.log('Calling Qwen OpenAI compatible API...');
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       const qwenResponse = await fetch(qwenUrl, {
         method: 'POST',
@@ -208,7 +208,8 @@ ${seriesSummary}
             }
           ],
           max_tokens: 1500,
-          temperature: 0.7
+          temperature: 0.7,
+          enable_thinking: false
         }),
         signal: controller.signal
       });
@@ -239,6 +240,9 @@ ${seriesSummary}
       } else if (qwenData.data?.text) {
         assistantMessage = qwenData.data.text;
         console.log('✓ Found in data.text');
+      } else if (qwenData.choices?.[0]?.message?.reasoning_content) {
+        assistantMessage = qwenData.choices[0].message.reasoning_content;
+        console.log('✓ Found in choices[0].message.reasoning_content');
       } else {
         console.error('Qwen response structure:', Object.keys(qwenData));
         console.error('Choices:', qwenData.choices);
