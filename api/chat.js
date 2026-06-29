@@ -1,7 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+if (!process.env.CLAUDE_API_KEY) {
+  console.error('Warning: CLAUDE_API_KEY is not set');
+}
+
 const client = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY
+  apiKey: process.env.CLAUDE_API_KEY || 'sk-placeholder'
 });
 
 // 从productName中提取款式类型
@@ -262,10 +266,27 @@ ${seriesSummary}
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Chat API Error:', error);
+
+    // 检查是否是API key问题
+    if (error.message && error.message.includes('401')) {
+      return res.status(401).json({
+        error: 'Authentication failed',
+        message: 'CLAUDE_API_KEY 环境变量未配置或无效。请在 Vercel 项目设置中添加有效的 API key。'
+      });
+    }
+
+    if (error.message && error.message.includes('timeout')) {
+      return res.status(504).json({
+        error: 'Request timeout',
+        message: '请求超时，请重试。'
+      });
+    }
+
     res.status(500).json({
       error: 'Failed to process request',
-      details: error.message
+      message: error.message || 'Unknown error',
+      hint: '请检查 CLAUDE_API_KEY 是否在 Vercel 环境变量中配置'
     });
   }
 }

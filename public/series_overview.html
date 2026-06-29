@@ -522,9 +522,16 @@ async function sendChatMessage() {
     messages.appendChild(aiMsg);
     messages.scrollTop = messages.scrollHeight;
   } catch (error) {
+    console.error('Chat error:', error);
     const errorMsg = document.createElement('div');
     errorMsg.className = 'chat-message ai';
-    errorMsg.textContent = '抱歉，出错了。请稍后重试。';
+    errorMsg.style.color = '#c0392b';
+
+    let errorText = '抱歉，出错了。';
+    if (error.message) {
+      errorText += '\n' + error.message;
+    }
+    errorMsg.textContent = errorText;
     messages.appendChild(errorMsg);
   } finally {
     input.disabled = false;

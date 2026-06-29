@@ -852,7 +852,17 @@ async function sendChatMessage() {
     console.error('Chat error:', error);
     const errorMsg = document.createElement('div');
     errorMsg.className = 'chat-message assistant';
-    errorMsg.textContent = '抱歉，出现了错误。请稍后重试。';
+    errorMsg.style.color = '#c0392b';
+
+    let errorText = '抱歉，出现了错误。';
+    if (error.message) {
+      errorText += '\n\n' + error.message;
+    }
+    if (!navigator.onLine) {
+      errorText = '网络连接失败，请检查网络。';
+    }
+
+    errorMsg.textContent = errorText;
     messages.appendChild(errorMsg);
   }
 
