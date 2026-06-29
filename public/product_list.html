@@ -17,7 +17,7 @@ body {
 .header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: #fff;
-  padding: 24px 20px;
+  padding: 8px 20px;
   text-align: center;
   position: sticky;
   top: 0;
@@ -25,28 +25,28 @@ body {
   box-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 .header h1 {
-  font-size: 22px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2px;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 0px;
 }
 .header .brand { color: #c9a96e; }
 .header .subtitle {
-  font-size: 13px;
-  opacity: 0.8;
-  letter-spacing: 1px;
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
 }
 .series-overview-btn {
   display: inline-block;
-  margin-top: 8px;
-  padding: 6px 16px;
+  margin-top: 4px;
+  padding: 4px 12px;
   background: #c9a96e;
   color: #1a1a2e;
-  border-radius: 4px;
+  border-radius: 3px;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   transition: background 0.2s;
 }
 .series-overview-btn:hover { background: #d4b574; }
@@ -55,7 +55,7 @@ body {
 .stats-bar {
   background: #fff;
   border-bottom: 1px solid #e8e4dd;
-  padding: 12px 16px;
+  padding: 8px 16px;
   display: flex;
   gap: 16px;
   overflow-x: auto;
@@ -73,14 +73,14 @@ body {
 /* Toolbar */
 .toolbar {
   background: #fff;
-  padding: 10px 16px;
+  padding: 8px 16px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
   border-bottom: 1px solid #e8e4dd;
   position: sticky;
-  top: 104px;
+  top: 50px;
   z-index: 99;
 }
 .search-box {
@@ -114,7 +114,7 @@ body {
   background: #fff;
   border-bottom: 2px solid #e8e4dd;
   position: sticky;
-  top: 156px;
+  top: 98px;
   z-index: 99;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -166,11 +166,10 @@ body {
 .product-thumb {
   width: 80px; height: 80px; border-radius: 8px; object-fit: cover;
   background: #f5f3ef; flex-shrink: 0;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 .product-thumb:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .product-info { flex: 1; min-width: 0; }
@@ -178,17 +177,15 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: #1a1a2e;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   line-height: 1.4;
 }
-
 .product-tags {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
   margin-bottom: 6px;
 }
-
 .tag {
   display: inline-block;
   padding: 4px 10px;
@@ -196,10 +193,8 @@ body {
   font-size: 11px;
   font-weight: 600;
   color: #fff;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
-
 .product-meta {
   font-size: 12px;
   color: #999;
@@ -302,12 +297,131 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 }
 .back-top.show { display: block; }
 
+/* Chat Widget */
+.chat-toggle {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 90;
+}
+.chat-toggle:hover { background: #d4b574; transform: scale(1.1); }
+
+.chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 40px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 1001;
+}
+.chat-widget.show { display: flex; }
+
+.chat-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.chat-message.user {
+  align-self: flex-end;
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 8px 2px 8px 8px;
+}
+.chat-message.assistant {
+  align-self: flex-start;
+  background: #f0ede6;
+  color: #333;
+  border-radius: 2px 8px 8px 8px;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e8e4dd;
+  background: #fafafa;
+  border-radius: 0 0 12px 12px;
+}
+.chat-input {
+  flex: 1;
+  border: 1px solid #d4cfc7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+}
+.chat-input:focus { border-color: #c9a96e; }
+.chat-send {
+  padding: 8px 16px;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.chat-send:hover { background: #d4b574; }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* Mobile */
 @media (max-width: 600px) {
-  .header h1 { font-size: 18px; }
+  .header h1 { font-size: 13px; }
   .product-card { flex-direction: column; align-items: flex-start; }
   .product-price { text-align: left; width: 100%; display: flex; justify-content: space-between; align-items: center; }
-  .tabs { top: 156px; }
+  .tabs { top: 98px; }
 }
 </style>
 </head>
@@ -323,23 +437,44 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 
 <div class="toolbar">
   <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search style code / product name / series / color...">
-  <button class="sort-btn" id="searchBtn" onclick="performSearch()">🔍 搜索</button>
-  <button class="sort-btn" id="clearBtn" onclick="clearSearch()">✕ 清空</button>
   <select class="sort-btn" id="seriesFilter" style="max-width:140px;">
     <option value="">📂 全部系列</option>
   </select>
   <button class="sort-btn" data-sort="price-asc">价格↑</button>
   <button class="sort-btn" data-sort="price-desc">价格↓</button>
   <button class="sort-btn" data-sort="name" id="defaultSortBtn">名称</button>
+  <button class="sort-btn" id="searchBtn" onclick="performSearch()">🔍 搜索</button>
+  <button class="sort-btn" id="clearBtn" onclick="clearSearch()">✕ 清空</button>
 </div>
 
 <div class="tabs" id="tabs"></div>
 
 <div class="container" id="productList"></div>
 
+<!-- AI Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+  <div class="chat-header">
+    <span>🤖 AI 购物助手</span>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="描述你想要的产品..." class="chat-input">
+    <button onclick="sendChatMessage()" class="chat-send">发送</button>
+  </div>
+</div>
+
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬 AI 助手</button>
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<script src="product_data.js?v=20260629b"></script>
+<script>
+// 检查登录状态，防止直接访问页面绕过登录
+if (!sessionStorage.getItem('authenticated')) {
+  window.location.href = 'login.html';
+}
+</script>
+
+<script src="product_data.js"></script>
 <script>
 // ========== STATE ==========
 let activeCategory = '全部';
@@ -352,23 +487,16 @@ const categories = ['全部', '男包', '男鞋', '男衣', '女包', '女鞋', 
 // Build series list on init
 let seriesList = [];
 
-function buildSeriesList() {
-  const seriesSet = new Set(PRODUCTS.map(p => p.series).filter(Boolean));
-  seriesList = ['全部系列', ...Array.from(seriesSet).sort()];
-}
-
-// ========== INIT ==========
 function openImageModal(src) {
   const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;cursor:zoom-out;';
   const img = document.createElement('img');
   img.src = src;
-  img.style.cssText = 'max-width:90%;max-height:90%;object-fit:contain;';
+  img.style.cssText = 'max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;';
+  img.onclick = (e) => e.stopPropagation();
   modal.appendChild(img);
   modal.onclick = () => modal.remove();
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') modal.remove();
-  }, { once: true });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.remove(); }, { once: true });
   document.body.appendChild(modal);
 }
 
@@ -389,22 +517,71 @@ function clearSearch() {
   renderProducts();
 }
 
+function getProductTags(p) {
+  const tags = [];
+
+  // Style type detection
+  const types = ['T SHIRT', 'SWEATSHIRT', 'JACKET', 'SHIRT', 'COAT', 'DRESS', 'SKIRT', 'PANTS', 'SHORTS'];
+  for (const type of types) {
+    if (p.productName.toUpperCase().includes(type)) {
+      tags.push({ label: type, type: 'style', color: '#8B6F47' });
+      break;
+    }
+  }
+
+  // Color mapping to Chinese names
+  const colorMap = {
+    'BLK': '黑', 'WHT': '白', 'BLU': '蓝', 'RED': '红', 'GRN': '绿',
+    'HGR': '灰绿', 'BRN': '棕', 'GRY': '灰', 'NAV': '深蓝', 'BEI': '米',
+    'PRP': '紫', 'YEL': '黄', 'PNK': '粉', 'LHBLK': '浅黑', 'B4': '驼', 'MPL': '枫叶'
+  };
+
+  if (p.colorCode) {
+    let colorName = p.colorCode;
+    for (const [code, name] of Object.entries(colorMap)) {
+      if (p.colorCode.includes(code)) {
+        colorName = name;
+        break;
+      }
+    }
+    tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
+  }
+
+  // Series tag
+  if (p.series) {
+    tags.push({ label: p.series, type: 'series', color: '#d4b574' });
+  }
+
+  // Discount tag
+  if (p.discount) {
+    tags.push({ label: p.discount, type: 'discount', color: '#c0392b' });
+  }
+
+  return tags;
+}
+
+function buildSeriesList() {
+  const seriesSet = new Set(PRODUCTS.map(p => p.series).filter(Boolean));
+  seriesList = ['全部系列', ...Array.from(seriesSet).sort()];
+}
+
+// ========== INIT ==========
 function init() {
   buildSeriesList();
   renderSeriesFilter();
   renderTabs();
   renderStats();
-
-  // 检查是否需要自动搜索SKU
-  const searchAfterReturn = sessionStorage.getItem('searchAfterReturn');
-  if (searchAfterReturn) {
-    searchQuery = searchAfterReturn;
-    document.getElementById('searchBox').value = searchAfterReturn;
-    sessionStorage.removeItem('searchAfterReturn');
-  }
-
   renderProducts();
   setupEvents();
+
+  // 检查是否从系列页面跳转过来并需要搜索
+  const searchTerm = sessionStorage.getItem('searchAfterReturn');
+  if (searchTerm) {
+    const searchBox = document.getElementById('searchBox');
+    searchBox.value = searchTerm;
+    searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+    sessionStorage.removeItem('searchAfterReturn');
+  }
 
   window.addEventListener('scroll', () => {
     document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
@@ -481,58 +658,15 @@ function getFilteredProducts() {
   return filtered;
 }
 
-function getProductTags(p) {
-  const tags = [];
-
-  // 款式类型标签
-  const types = ['T SHIRT', 'SWEATSHIRT', 'JACKET', 'SHIRT', 'COAT', 'DRESS', 'SKIRT', 'PANTS', 'SHORTS'];
-  for (const type of types) {
-    if (p.productName.toUpperCase().includes(type)) {
-      tags.push({ label: type, type: 'style', color: '#8B6F47' });
-      break;
-    }
-  }
-
-  // 颜色标签（中文名称）
-  const colorMap = {
-    'BLK': '黑', 'WHT': '白', 'BLU': '蓝', 'RED': '红', 'GRN': '绿',
-    'HGR': '灰绿', 'BRN': '棕', 'GRY': '灰', 'NAV': '深蓝', 'BEI': '米',
-    'PRP': '紫', 'YEL': '黄', 'PNK': '粉', 'LHBLK': '浅黑', 'B4': '驼', 'MPL': '枫叶'
-  };
-
-  if (p.colorCode) {
-    let colorName = p.colorCode;
-    for (const [code, name] of Object.entries(colorMap)) {
-      if (p.colorCode.includes(code)) {
-        colorName = name;
-        break;
-      }
-    }
-    tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
-  }
-
-  // 系列标签
-  if (p.series) {
-    tags.push({ label: p.series, type: 'series', color: '#d4b574' });
-  }
-
-  // 折扣标签
-  if (p.discount) {
-    tags.push({ label: p.discount, type: 'discount', color: '#c0392b' });
-  }
-
-  return tags;
-}
-
 function renderProducts() {
   const filtered = getFilteredProducts();
   const container = document.getElementById('productList');
-
+  
   if (filtered.length === 0) {
     container.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>`;
     return;
   }
-
+  
   container.innerHTML = filtered.map((p, i) => {
     const genderClass = p.gender === '男' ? 'male' : 'female';
     const price = p.discountPrice || p.retailPrice;
@@ -608,6 +742,134 @@ function setupEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ========== CHAT WIDGET ==========
+function toggleChat() {
+  const widget = document.getElementById('chatWidget');
+  const toggle = document.getElementById('chatToggle');
+  widget.classList.toggle('show');
+  toggle.style.display = widget.classList.contains('show') ? 'none' : 'flex';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  const messages = document.getElementById('chatMessages');
+
+  // 显示用户消息
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user';
+  userMsg.textContent = message;
+  messages.appendChild(userMsg);
+
+  input.value = '';
+  input.disabled = true;
+
+  const sendBtn = document.querySelector('.chat-send');
+  sendBtn.disabled = true;
+
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    // 调用API
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: message,
+        products: PRODUCTS
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('API request failed');
+    }
+
+    const data = await response.json();
+
+    // 显示AI回复
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-message assistant';
+    aiMsg.textContent = data.message;
+    messages.appendChild(aiMsg);
+
+    // 显示匹配结果统计
+    if (data.matchCount > 0) {
+      const summary = document.createElement('div');
+      summary.style.cssText = 'align-self:flex-start;background:#e8f0fe;padding:10px 12px;border-radius:6px;margin-top:8px;font-size:12px;color:#1a1a2e;width:100%;';
+      summary.innerHTML = `✅ 找到 <strong>${data.matchCount}</strong> 个匹配产品`;
+      messages.appendChild(summary);
+    }
+
+    // 显示所有匹配的产品卡片
+    if (data.matchedProducts && data.matchedProducts.length > 0) {
+      const productsContainer = document.createElement('div');
+      productsContainer.style.cssText = 'align-self:flex-start;width:100%;display:flex;flex-direction:column;gap:8px;margin-top:10px;';
+
+      // 按系列分组显示
+      const groupedBySeries = {};
+      data.matchedProducts.forEach(p => {
+        const series = p.series || '其他';
+        if (!groupedBySeries[series]) {
+          groupedBySeries[series] = [];
+        }
+        groupedBySeries[series].push(p);
+      });
+
+      Object.entries(groupedBySeries).forEach(([series, items]) => {
+        const seriesTitle = document.createElement('div');
+        seriesTitle.style.cssText = 'font-size:12px;font-weight:600;color:#c9a96e;margin-top:6px;';
+        seriesTitle.textContent = `📦 ${series}`;
+        productsContainer.appendChild(seriesTitle);
+
+        items.forEach(product => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#f5f3ef;padding:8px;border-radius:6px;font-size:11px;cursor:pointer;border-left:3px solid #c9a96e;transition:all 0.2s;';
+          const price = product.discountPrice || product.retailPrice;
+          card.innerHTML = `
+            <strong>${product.productName}</strong><br>
+            <span style="color:#999;">${product.styleCode} | ${product.colorCode || '无'} | ¥${price}</span>
+          `;
+          card.onmouseover = () => card.style.background = '#ede9e1';
+          card.onmouseout = () => card.style.background = '#f5f3ef';
+          card.onclick = () => {
+            searchQuery = product.styleCode;
+            document.getElementById('searchBox').value = product.styleCode;
+            renderProducts();
+            toggleChat();
+          };
+          productsContainer.appendChild(card);
+        });
+      });
+
+      messages.appendChild(productsContainer);
+    }
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'chat-message assistant';
+    errorMsg.textContent = '抱歉，出现了错误。请稍后重试。';
+    messages.appendChild(errorMsg);
+  }
+
+  input.disabled = false;
+  sendBtn.disabled = false;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// 按Enter发送消息
+document.addEventListener('DOMContentLoaded', () => {
+  const chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+  }
+});
 </script>
 </body>
 </html>
