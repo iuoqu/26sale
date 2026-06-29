@@ -321,6 +321,9 @@ function buildSeriesData() {
   
   const series = Object.values(map).map(s => {
     const firstImg = s.items.find(p => p.image);
+    const info = seriesInfo[s.name] || null;
+    // 没有描述且只有1-2件的系列默认折叠
+    const shouldCollapse = !info && s.items.length <= 2;
     return {
       name: s.name,
       count: s.items.length,
@@ -329,8 +332,9 @@ function buildSeriesData() {
       totalStock: s.items.reduce((sum,p) => sum + p.totalStock, 0),
       minPrice: Math.min(...s.items.map(p => p.discountPrice || p.retailPrice)),
       maxPrice: Math.max(...s.items.map(p => p.discountPrice || p.retailPrice)),
-      info: seriesInfo[s.name] || null,
+      info: info,
       thumb: firstImg ? firstImg.image : '',
+      shouldCollapse: shouldCollapse
     };
   });
   
@@ -413,7 +417,7 @@ function render() {
 
   // Render grid
   document.getElementById('seriesGrid').innerHTML = filtered.map(s => `
-    <div class="card" onclick="this.classList.toggle('expanded')">
+    <div class="card ${!s.shouldCollapse ? 'expanded' : ''}" onclick="this.classList.toggle('expanded')">
       <div class="expand-icon">▼</div>
       <div class="series-header">
         ${s.thumb ? `<img src="${s.thumb}" class="series-thumb" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
