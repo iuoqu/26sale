@@ -422,8 +422,8 @@ function render() {
       <div class="series-meta">
         <span class="count-badge">${s.count}件</span>
         ${s.categories.map(c => `<span class="cat-tag">${c}</span>`).join('')}
-        <span>库存${s.totalStock}</span>
-        <span>¥${s.minPrice.toLocaleString()}~¥${s.maxPrice.toLocaleString()}</span>
+        ${s.info?.year ? `<span style="color:#999;font-size:13px;">📅 ${s.info.year}</span>` : ''}
+        ${s.info?.intro ? `<span style="color:#666;font-size:13px;flex:1;">${s.info.intro}</span>` : ''}
       </div>
       <div class="detail">
         ${renderInfoBlock(s.info)}
