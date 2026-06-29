@@ -181,8 +181,10 @@ ${seriesSummary}
 
     // 使用Qwen或Claude
     if (USE_QWEN) {
-      // 调用阿里云Qwen API
-      const qwenResponse = await fetch('https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation', {
+      // 调用阿里云Qwen API (使用自定义端点)
+      const qwenUrl = 'https://ws-nw9gantac6nmtvhr.cn-beijing.maas.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+
+      const qwenResponse = await fetch(qwenUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,11 +210,17 @@ ${seriesSummary}
 
       if (!qwenResponse.ok) {
         const errorText = await qwenResponse.text();
+        console.error('Qwen API error:', errorText);
         throw new Error(`Qwen API error ${qwenResponse.status}: ${errorText}`);
       }
 
       const qwenData = await qwenResponse.json();
-      assistantMessage = qwenData.output?.text || '无法生成回复';
+      if (qwenData.output?.text) {
+        assistantMessage = qwenData.output.text;
+      } else {
+        console.error('Unexpected Qwen response:', qwenData);
+        throw new Error('无法从 Qwen 获取有效回复');
+      }
     } else if (USE_CLAUDE && claudeClient) {
       // 调用Claude API
       const response = await claudeClient.messages.create({
