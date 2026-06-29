@@ -76,7 +76,7 @@ function matchesColor(colorCode, userQuery) {
 function analyzeSeriesCharacteristics(products) {
   const seriesStats = {};
 
-  productList.forEach(p => {
+  products.forEach(p => {
     const series = p.series || '其他';
     if (!seriesStats[series]) {
       seriesStats[series] = {
