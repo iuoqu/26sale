@@ -335,12 +335,15 @@ ${seriesSummary}
 
   } catch (error) {
     console.error('Chat API Error:', error);
+    console.error('Error stack:', error.stack);
 
     // 检查是否是API key问题
     if (error.message && error.message.includes('401')) {
       return res.status(401).json({
         error: 'Authentication failed',
-        message: 'CLAUDE_API_KEY 环境变量未配置或无效。请在 Vercel 项目设置中添加有效的 API key。'
+        message: USE_QWEN
+          ? 'DASHSCOPE_API_KEY 无效或未授权'
+          : 'CLAUDE_API_KEY 无效或未授权'
       });
     }
 
@@ -351,10 +354,13 @@ ${seriesSummary}
       });
     }
 
+    // 返回真实的错误信息
     res.status(500).json({
       error: 'Failed to process request',
       message: error.message || 'Unknown error',
-      hint: '请检查 CLAUDE_API_KEY 是否在 Vercel 环境变量中配置'
+      details: error.toString(),
+      usingQwen: USE_QWEN,
+      usingClaude: USE_CLAUDE
     });
   }
 }

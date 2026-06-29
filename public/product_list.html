@@ -788,11 +788,15 @@ async function sendChatMessage() {
       let errorDetail = `API错误 ${response.status}: ${response.statusText}`;
       try {
         const errorData = await response.json();
+        console.log('API error response:', errorData);
         if (errorData.message) errorDetail = errorData.message;
+        if (errorData.details) errorDetail += '\n详情: ' + errorData.details;
         if (errorData.error) errorDetail = errorData.error;
-        if (errorData.hint) errorDetail += '\n' + errorData.hint;
+        if (errorData.usingQwen !== undefined) {
+          errorDetail += `\n(Qwen: ${errorData.usingQwen}, Claude: ${errorData.usingClaude})`;
+        }
       } catch (e) {
-        // response不是JSON格式
+        console.log('Failed to parse error response:', e);
       }
       throw new Error(errorDetail);
     }
