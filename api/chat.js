@@ -193,7 +193,7 @@ ${seriesSummary}
           'Authorization': `Bearer ${process.env.DASHSCOPE_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'qwen-max',
+          model: 'qwen3.7-max',
           messages: [
             {
               role: 'system',
