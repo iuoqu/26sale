@@ -350,10 +350,10 @@ function init() {
   // 检查是否从系列页面跳转过来并需要搜索
   const searchTerm = sessionStorage.getItem('searchAfterReturn');
   if (searchTerm) {
-    searchQuery = searchTerm;
-    document.getElementById('searchBox').value = searchTerm;
+    const searchBox = document.getElementById('searchBox');
+    searchBox.value = searchTerm;
+    searchBox.dispatchEvent(new Event('input', { bubbles: true }));
     sessionStorage.removeItem('searchAfterReturn');
-    renderProducts();
   }
 
   window.addEventListener('scroll', () => {
@@ -405,12 +405,12 @@ function getFilteredProducts() {
   
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(p => 
-      p.styleCode.toLowerCase().includes(q) ||
-      p.colorCode.toLowerCase().includes(q) ||
-      p.productName.toLowerCase().includes(q) ||
+    filtered = filtered.filter(p =>
+      (p.styleCode && p.styleCode.toLowerCase().includes(q)) ||
+      (p.colorCode && p.colorCode.toLowerCase().includes(q)) ||
+      (p.productName && p.productName.toLowerCase().includes(q)) ||
       (p.sizeDisplay && p.sizeDisplay.toLowerCase().includes(q)) ||
-      p.size.toLowerCase().includes(q) ||
+      (p.size && p.size.toLowerCase().includes(q)) ||
       (p.series && p.series.toLowerCase().includes(q))
     );
   }
