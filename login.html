@@ -55,6 +55,7 @@
   input.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     if (input.value === CORRECT) {
+      sessionStorage.setItem('authenticated', 'true');
       window.location.href = 'product_list.html';
     } else {
       input.classList.remove('error');
