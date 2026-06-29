@@ -44,13 +44,13 @@ body {
   position: relative;
 }
 .card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
-.card .series-name { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
-.card .series-header { display: flex; align-items: center; gap: 10px; }
+.card .series-name { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+.card .series-header { display: flex; align-items: center; gap: 12px; }
 .card .series-thumb {
-  width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
+  width: 48px; height: 48px; border-radius: 6px; object-fit: cover;
   background: #f5f3ef; flex-shrink: 0;
 }
-.card .series-meta { font-size: 12px; color: #999; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.card .series-meta { font-size: 13px; color: #999; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 8px 0; }
 .card .count-badge {
   display: inline-block; background: #1a1a2e; color: #c9a96e; padding: 2px 10px;
   border-radius: 12px; font-size: 13px; font-weight: 700;
@@ -63,41 +63,41 @@ body {
 .card.expanded .expand-icon { transform: rotate(180deg); }
 
 /* Detail */
-.detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+.detail { display: none; margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; }
 .card.expanded .detail { display: block; }
 .detail-item {
   display: flex; flex-direction: column;
-  padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 6px;
+  padding: 14px 0; font-size: 14px; border-bottom: 1px solid #f5f3ef; gap: 8px;
 }
 .detail-item:last-child { border-bottom: none; }
-.detail-name-row { display: flex; gap: 8px; align-items: flex-start; }
+.detail-name-row { display: flex; gap: 10px; align-items: flex-start; }
 .detail-name {
   color: #2f5496; cursor: pointer; text-decoration: none; transition: color 0.2s;
-  flex: 1; word-break: break-word;
+  flex: 1; word-break: break-word; font-size: 14px;
 }
 .detail-name:hover { color: #c9a96e; text-decoration: underline; }
 .detail-sku { font-size: 12px; color: #999; }
-.detail-meta-row { display: flex; gap: 8px; align-items: center; }
+.detail-meta-row { display: flex; gap: 10px; align-items: center; }
 .detail-img {
-  width: 48px; height: 48px; border-radius: 4px; object-fit: cover;
+  width: 56px; height: 56px; border-radius: 4px; object-fit: cover;
   background: #f5f3ef; flex-shrink: 0;
 }
-.detail-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.detail-price { font-weight: 600; color: #c0392b; font-size: 14px; }
-.detail-retail { text-decoration: line-through; color: #999; font-size: 11px; }
-.detail-stock { font-size: 11px; color: #888; }
-.detail-sizes { font-size: 11px; color: #666; background: #f5f3ef; padding: 2px 6px; border-radius: 3px; }
+.detail-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.detail-price { font-weight: 600; color: #c0392b; font-size: 15px; }
+.detail-retail { text-decoration: line-through; color: #999; font-size: 12px; }
+.detail-stock { font-size: 12px; color: #888; }
+.detail-sizes { font-size: 12px; color: #666; background: #f5f3ef; padding: 3px 8px; border-radius: 3px; }
 
 /* Series Info Section */
 .series-info {
-  background: #f8f6f2; border-radius: 8px; padding: 12px; margin-bottom: 10px;
-  font-size: 13px; line-height: 1.7;
+  background: #f8f6f2; border-radius: 8px; padding: 16px; margin-bottom: 16px;
+  font-size: 14px; line-height: 1.8;
 }
-.series-info .si-row { margin-bottom: 4px; display: flex; gap: 6px; }
-.series-info .si-label { color: #999; white-space: nowrap; min-width: 48px; }
-.series-info .si-value { color: #333; }
-.series-info .si-year { display: inline-block; background: #1a1a2e; color: #c9a96e; padding: 1px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
-.series-info .si-celeb { color: #c0392b; font-size: 12px; }
+.series-info .si-row { margin-bottom: 8px; display: flex; gap: 8px; }
+.series-info .si-label { color: #999; white-space: nowrap; min-width: 56px; font-weight: 500; }
+.series-info .si-value { color: #333; flex: 1; }
+.series-info .si-year { display: inline-block; background: #1a1a2e; color: #c9a96e; padding: 2px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.series-info .si-celeb { color: #c0392b; font-size: 13px; }
 
 /* Filters */
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -417,7 +417,7 @@ function render() {
 
   // Render grid
   document.getElementById('seriesGrid').innerHTML = filtered.map(s => `
-    <div class="card ${!s.shouldCollapse ? 'expanded' : ''}" onclick="this.classList.toggle('expanded')">
+    <div class="card" onclick="this.classList.toggle('expanded')">
       <div class="expand-icon">▼</div>
       <div class="series-header">
         ${s.thumb ? `<img src="${s.thumb}" class="series-thumb" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
