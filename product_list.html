@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRIVATE SALE — 2026 SS COLLECTION</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #f5f3ef;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  padding: 24px 20px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.header .brand { color: #c9a96e; }
+.header .subtitle {
+  font-size: 13px;
+  opacity: 0.8;
+  letter-spacing: 1px;
+}
+.series-overview-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 16px;
+  background: #c9a96e;
+  color: #1a1a2e;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+.series-overview-btn:hover { background: #d4b574; }
+
+/* Stats Bar */
+.stats-bar {
+  background: #fff;
+  border-bottom: 1px solid #e8e4dd;
+  padding: 12px 16px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.stat-item {
+  white-space: nowrap;
+  font-size: 13px;
+  color: #666;
+}
+.stat-item strong { color: #1a1a2e; font-size: 16px; }
+
+/* Toolbar */
+.toolbar {
+  background: #fff;
+  padding: 10px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e8e4dd;
+  position: sticky;
+  top: 104px;
+  z-index: 99;
+}
+.search-box {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 14px;
+  border: 1px solid #d4cfc7;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: #c9a96e; }
+.sort-btn {
+  padding: 8px 16px;
+  border: 1px solid #d4cfc7;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.sort-btn:hover { border-color: #c9a96e; }
+.sort-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+
+/* Category Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-bottom: 2px solid #e8e4dd;
+  position: sticky;
+  top: 156px;
+  z-index: 99;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tab {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  color: #888;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+.tab:hover { color: #1a1a2e; }
+.tab.active { color: #1a1a2e; border-bottom-color: #c9a96e; }
+.tab .count {
+  font-size: 11px;
+  color: #999;
+  margin-left: 4px;
+}
+
+/* Product List */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px;
+}
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+  border-left: 3px solid transparent;
+}
+.product-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+.product-card.male { border-left-color: #2f5496; }
+.product-card.female { border-left-color: #c0392b; }
+
+.product-thumb {
+  width: 80px; height: 80px; border-radius: 8px; object-fit: cover;
+  background: #f5f3ef; flex-shrink: 0;
+}
+
+.product-info { flex: 1; min-width: 0; }
+.product-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.product-meta {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.meta-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: #f0ede6;
+  color: #666;
+}
+.meta-tag.style { background: #e8f0fe; color: #2f5496; }
+.meta-tag.color { background: #fef3e2; color: #b8730a; }
+.meta-tag.size { background: #e8f5e9; color: #2e7d32; }
+a.meta-tag.series-link {
+  background: #1a1a2e; color: #c9a96e; font-weight: 600;
+  text-decoration: none; cursor: pointer; transition: all 0.2s;
+}
+a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
+
+.product-price { text-align: right; flex-shrink: 0; }
+.price-retail { font-size: 13px; color: #999; text-decoration: line-through; }
+.price-discount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #c0392b;
+}
+.price-original { font-size: 16px; color: #1a1a2e; font-weight: 600; }
+.discount-badge {
+  display: inline-block;
+  background: #c0392b;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.stock-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.stock-low { background: #ffebee; color: #c0392b; }
+.stock-ok { background: #e8f5e9; color: #2e7d32; }
+
+/* Empty State */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Summary Bottom */
+.summary {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 20px auto;
+  max-width: 900px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.summary h3 { font-size: 14px; color: #666; margin-bottom: 8px; }
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.summary-item {
+  padding: 10px;
+  border-radius: 8px;
+  background: #f8f6f2;
+  text-align: center;
+}
+.summary-item .s-count { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+.summary-item .s-label { font-size: 12px; color: #999; margin-top: 2px; }
+
+.back-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: none;
+}
+.back-top.show { display: block; }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header h1 { font-size: 18px; }
+  .product-card { flex-direction: column; align-items: flex-start; }
+  .product-price { text-align: left; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+  .tabs { top: 156px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="brand">PRIVATE SALE</span></h1>
+  <div class="subtitle">2026 SS COLLECTION</div>
+  <a href="series_overview.html" class="series-overview-btn">📂 SERIES OVERVIEW →</a>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="toolbar">
+  <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search style code / product name / series / color...">
+  <select class="sort-btn" id="seriesFilter" style="max-width:140px;">
+    <option value="">📂 全部系列</option>
+  </select>
+  <button class="sort-btn" data-sort="price-asc">价格↑</button>
+  <button class="sort-btn" data-sort="price-desc">价格↓</button>
+  <button class="sort-btn" data-sort="name" id="defaultSortBtn">名称</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="container" id="productList"></div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script src="product_data.js"></script>
+<script>
+// ========== STATE ==========
+let activeCategory = '全部';
+let activeSort = 'name';
+let activeSeries = '';
+let searchQuery = '';
+
+const categories = ['全部', '男包', '男鞋', '男衣', '女包', '女鞋', '女衣'];
+
+// Build series list on init
+let seriesList = [];
+
+function buildSeriesList() {
+  const seriesSet = new Set(PRODUCTS.map(p => p.series).filter(Boolean));
+  seriesList = ['全部系列', ...Array.from(seriesSet).sort()];
+}
+
+// ========== INIT ==========
+function init() {
+  buildSeriesList();
+  renderSeriesFilter();
+  renderTabs();
+  renderStats();
+  renderProducts();
+  setupEvents();
+  
+  window.addEventListener('scroll', () => {
+    document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
+  });
+}
+
+function renderSeriesFilter() {
+  const sel = document.getElementById('seriesFilter');
+  sel.innerHTML = '<option value="">📂 全部系列</option>' + 
+    seriesList.filter(s => s !== '全部系列').map(s => 
+      `<option value="${s}" ${s === activeSeries ? 'selected' : ''}>${s}</option>`
+    ).join('');
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = categories.map(cat => {
+    const count = cat === '全部' ? PRODUCTS.length : PRODUCTS.filter(p => p.category === cat).length;
+    return `<button class="tab ${cat === activeCategory ? 'active' : ''}" data-cat="${cat}">
+      ${cat}<span class="count">(${count})</span>
+    </button>`;
+  }).join('');
+}
+
+function renderStats() {
+  const filtered = getFilteredProducts();
+  const totalRetail = filtered.reduce((s, p) => s + p.retailPrice * (p.totalStock || p.stock || 0), 0);
+  const totalDisc = filtered.reduce((s, p) => s + (p.discountPrice || p.retailPrice) * (p.totalStock || p.stock || 0), 0);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-item">📦 商品数 <strong>${filtered.length}</strong></div>
+    <div class="stat-item">📊 总库存 <strong>${filtered.reduce((s,p)=>s+(p.totalStock||p.stock||0),0)}</strong></div>
+    <div class="stat-item">💰 零售总值 <strong>¥${totalRetail.toLocaleString()}</strong></div>
+    ${totalDisc !== totalRetail ? `<div class="stat-item">🏷️ 折扣总值 <strong>¥${totalDisc.toLocaleString()}</strong></div>` : ''}
+    <div class="stat-item">💾 省 <strong>¥${(totalRetail-totalDisc).toLocaleString()}</strong></div>
+  `;
+}
+
+function getFilteredProducts() {
+  let filtered = [...PRODUCTS];
+  
+  if (activeCategory !== '全部') {
+    filtered = filtered.filter(p => p.category === activeCategory);
+  }
+  
+  if (activeSeries && activeSeries !== '全部系列') {
+    filtered = filtered.filter(p => p.series === activeSeries);
+  }
+  
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p => 
+      p.styleCode.toLowerCase().includes(q) ||
+      p.colorCode.toLowerCase().includes(q) ||
+      p.productName.toLowerCase().includes(q) ||
+      (p.sizeDisplay && p.sizeDisplay.toLowerCase().includes(q)) ||
+      p.size.toLowerCase().includes(q) ||
+      (p.series && p.series.toLowerCase().includes(q))
+    );
+  }
+  
+  // Sort
+  switch (activeSort) {
+    case 'price-asc':
+      filtered.sort((a, b) => (a.discountPrice || a.retailPrice) - (b.discountPrice || b.retailPrice));
+      break;
+    case 'price-desc':
+      filtered.sort((a, b) => (b.discountPrice || b.retailPrice) - (a.discountPrice || a.retailPrice));
+      break;
+    case 'name':
+      filtered.sort((a, b) => a.productName.localeCompare(b.productName, 'zh'));
+      break;
+  }
+  
+  return filtered;
+}
+
+function renderProducts() {
+  const filtered = getFilteredProducts();
+  const container = document.getElementById('productList');
+  
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>`;
+    return;
+  }
+  
+  container.innerHTML = filtered.map((p, i) => {
+    const genderClass = p.gender === '男' ? 'male' : 'female';
+    const price = p.discountPrice || p.retailPrice;
+    const hasDiscount = p.discountPrice && p.discountPrice !== p.retailPrice;
+    const totalStock = p.totalStock || p.stock || 0;
+    const stockClass = totalStock <= 1 ? 'stock-low' : 'stock-ok';
+    const stockText = totalStock <= 1 ? `仅剩${totalStock}件` : `库存${totalStock}`;
+    const sizeText = p.sizeDisplay || (p.size ? p.size : '');
+    
+    return `
+    <div class="product-card ${genderClass}">
+      ${p.image ? `<img src="${p.image}" class="product-thumb" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:24px;">📷</div>`}
+      <div class="product-info">
+        <div class="product-name">${p.productName}</div>
+        <div class="product-meta">
+          ${p.series ? `<a href="series_overview.html?series=${encodeURIComponent(p.series)}" class="meta-tag series-link" onclick="event.stopPropagation()">${p.series} ↗</a>` : ''}
+          <span class="meta-tag style">${p.styleCode}</span>
+          ${p.colorCode ? `<span class="meta-tag color">${p.colorCode}</span>` : ''}
+          ${sizeText ? `<span class="meta-tag size">${sizeText}</span>` : ''}
+          ${p.dept ? `<span class="meta-tag">${p.dept}</span>` : ''}
+        </div>
+      </div>
+      <div class="product-price">
+        ${hasDiscount ? `<div class="price-retail">¥${p.retailPrice.toLocaleString()}</div>` : ''}
+        <div class="${hasDiscount ? 'price-discount' : 'price-original'}">¥${price.toLocaleString()}</div>
+        ${hasDiscount ? `<div class="discount-badge">${p.discount || 'SALE'}</div>` : ''}
+        <div class="stock-badge ${stockClass}" style="margin-top:4px">${stockText}</div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  renderStats();
+}
+
+function setupEvents() {
+  // Tabs
+  document.getElementById('tabs').addEventListener('click', (e) => {
+    if (e.target.classList.contains('tab') || e.target.closest('.tab')) {
+      const tab = e.target.classList.contains('tab') ? e.target : e.target.closest('.tab');
+      activeCategory = tab.dataset.cat;
+      renderTabs();
+      renderProducts();
+    }
+  });
+  
+  // Search
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderProducts();
+  });
+  
+  // Series filter
+  document.getElementById('seriesFilter').addEventListener('change', (e) => {
+    activeSeries = e.target.value;
+    renderProducts();
+  });
+  
+  // Sort buttons
+  document.querySelectorAll('.sort-btn[data-sort]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeSort = btn.dataset.sort;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProducts();
+    });
+  });
+  
+  document.getElementById('defaultSortBtn').classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

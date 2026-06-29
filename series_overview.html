@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRIVATE SALE — 2026 SS COLLECTION</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #f5f3ef;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+.header h1 { font-size: 20px; letter-spacing: 2px; }
+.header .brand { color: #c9a96e; }
+.header .sub { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+
+.container { max-width: 900px; margin: 16px auto; padding: 0 12px; }
+
+/* Stats */
+.stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat { background: #fff; padding: 10px 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.stat .num { font-size: 22px; font-weight: 700; }
+.stat .lbl { font-size: 12px; color: #999; }
+
+/* Series Grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid #c9a96e;
+  position: relative;
+}
+.card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
+.card .series-name { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.card .series-header { display: flex; align-items: center; gap: 10px; }
+.card .series-thumb {
+  width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
+  background: #f5f3ef; flex-shrink: 0;
+}
+.card .series-meta { font-size: 12px; color: #999; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.card .count-badge {
+  display: inline-block; background: #1a1a2e; color: #c9a96e; padding: 2px 10px;
+  border-radius: 12px; font-size: 13px; font-weight: 700;
+}
+.card .cat-tag {
+  display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px;
+  background: #f0ede6; color: #666;
+}
+.card .expand-icon { position: absolute; right: 12px; top: 14px; font-size: 12px; color: #ccc; transition: transform 0.2s; }
+.card.expanded .expand-icon { transform: rotate(180deg); }
+
+/* Detail */
+.detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+.card.expanded .detail { display: block; }
+.detail-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f3ef; gap: 10px;
+}
+.detail-item:last-child { border-bottom: none; }
+.detail-img {
+  width: 48px; height: 48px; border-radius: 4px; object-fit: cover;
+  background: #f5f3ef; flex-shrink: 0;
+}
+.detail-name { flex: 1; color: #333; }
+.detail-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+.detail-price { font-weight: 600; color: #c0392b; font-size: 14px; }
+.detail-retail { text-decoration: line-through; color: #999; font-size: 11px; }
+.detail-stock { font-size: 11px; color: #888; }
+.detail-sizes { font-size: 11px; color: #666; background: #f5f3ef; padding: 2px 6px; border-radius: 3px; }
+
+/* Series Info Section */
+.series-info {
+  background: #f8f6f2; border-radius: 8px; padding: 12px; margin-bottom: 10px;
+  font-size: 13px; line-height: 1.7;
+}
+.series-info .si-row { margin-bottom: 4px; display: flex; gap: 6px; }
+.series-info .si-label { color: #999; white-space: nowrap; min-width: 48px; }
+.series-info .si-value { color: #333; }
+.series-info .si-year { display: inline-block; background: #1a1a2e; color: #c9a96e; padding: 1px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.series-info .si-celeb { color: #c0392b; font-size: 12px; }
+
+/* Filters */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-btn {
+  padding: 6px 14px; border: 1px solid #d4cfc7; border-radius: 20px;
+  background: #fff; font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.filter-btn:hover { border-color: #c9a96e; }
+.filter-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+
+.search-box {
+  flex: 1; min-width: 160px; padding: 8px 14px; border: 1px solid #d4cfc7;
+  border-radius: 8px; font-size: 14px; outline: none;
+}
+.search-box:focus { border-color: #c9a96e; }
+
+/* Back link */
+.back-link { display: inline-block; margin: 12px 0; color: #1a1a2e; text-decoration: none; font-size: 14px; }
+.back-link:hover { color: #c9a96e; }
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="brand">PRIVATE SALE</span></h1>
+  <div class="sub">2026 SS COLLECTION</div>
+</div>
+
+<div class="container">
+  <a href="product_list.html" class="back-link">← BACK TO PRODUCT LIST</a>
+
+  <div class="stats" id="statsRow"></div>
+
+  <div class="filters" style="margin-bottom:12px;">
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search series name...">
+  </div>
+  <div class="filters" id="filterRow">
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="男包">👜 男包</button>
+    <button class="filter-btn" data-filter="男鞋">👟 男鞋</button>
+    <button class="filter-btn" data-filter="男衣">👔 男衣</button>
+    <button class="filter-btn" data-filter="女包">👜 女包</button>
+    <button class="filter-btn" data-filter="女鞋">👟 女鞋</button>
+    <button class="filter-btn" data-filter="女衣">👗 女衣</button>
+  </div>
+
+  <div class="grid" id="seriesGrid"></div>
+</div>
+
+<script src="product_data.js"></script>
+<script src="series_info.js"></script>
+<script>
+const products = PRODUCTS;
+const seriesInfo = SERIES_INFO || {};
+
+function setupEvents() {
+  document.getElementById('searchBox').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    render();
+  });
+
+  document.getElementById('filterRow').addEventListener('click', e => {
+    if (e.target.classList.contains('filter-btn')) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeFilter = e.target.dataset.filter;
+      render();
+    }
+  });
+}
+
+// Build series data
+function buildSeriesData() {
+  const map = {};
+  products.forEach(p => {
+    const s = p.series || '其他';
+    if (!map[s]) map[s] = { name: s, items: [], categories: new Set() };
+    map[s].items.push(p);
+    map[s].categories.add(p.category);
+  });
+  
+  const series = Object.values(map).map(s => {
+    const firstImg = s.items.find(p => p.image);
+    return {
+      name: s.name,
+      count: s.items.length,
+      categories: Array.from(s.categories).sort(),
+      items: s.items.sort((a,b) => (a.discountPrice||a.retailPrice) - (b.discountPrice||b.retailPrice)),
+      totalStock: s.items.reduce((sum,p) => sum + p.totalStock, 0),
+      minPrice: Math.min(...s.items.map(p => p.discountPrice || p.retailPrice)),
+      maxPrice: Math.max(...s.items.map(p => p.discountPrice || p.retailPrice)),
+      info: seriesInfo[s.name] || null,
+      thumb: firstImg ? firstImg.image : '',
+    };
+  });
+  
+  series.sort((a,b) => b.count - a.count);
+  return series;
+}
+
+// Read URL param ?series=NAME and auto-scroll to that card
+function getUrlSeries() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('series') || '';
+}
+function scrollToSeries() {
+  const target = getUrlSeries();
+  if (!target) return;
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.card');
+    for (const c of cards) {
+      const name = c.querySelector('.series-name');
+      if (name && name.textContent.trim() === target) {
+        c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        c.classList.add('expanded');
+        c.style.boxShadow = '0 0 0 2px #c9a96e';
+        break;
+      }
+    }
+  }, 300);
+}
+
+function renderInfoBlock(info) {
+  if (!info) return '';
+  return `
+    <div class="series-info">
+      ${info.year ? `<span class="si-year">${info.year}</span>` : ''}
+      <div class="si-row"><span class="si-label">简介</span><span class="si-value">${info.intro || ''}</span></div>
+      ${info.style ? `<div class="si-row"><span class="si-label">风格</span><span class="si-value">${info.style}</span></div>` : ''}
+      ${info.feature ? `<div class="si-row"><span class="si-label">特点</span><span class="si-value">${info.feature}</span></div>` : ''}
+      ${info.celebrity ? `<div class="si-row"><span class="si-label">名人</span><span class="si-value si-celeb">${info.celebrity}</span></div>` : ''}
+      ${info.sizes ? `<div class="si-row"><span class="si-label">尺寸</span><span class="si-value">${info.sizes}</span></div>` : ''}
+      ${renderSourceLinks(info)}
+    </div>
+  `;
+}
+
+function renderSourceLinks(info) {
+  if (!info || !info.sources || !info.sources.length) return '';
+  return `
+    <div class="si-row" style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd;">
+      <span class="si-label" style="min-width:48px;">来源</span>
+      <span class="si-value">
+        ${info.sources.map((s, i) => 
+          `<a href="${s.url}" target="_blank" rel="noopener" style="color:#2f5496;font-size:12px;">${s.title}</a>`
+        ).join(' · ')}
+      </span>
+    </div>
+  `;
+}
+
+let seriesData = [];
+let activeFilter = 'all';
+let searchQuery = '';
+
+function render() {
+  // Stats
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="num">${seriesData.length}</div><div class="lbl">系列总数</div></div>
+    <div class="stat"><div class="num">${products.length}</div><div class="lbl">商品总数</div></div>
+    <div class="stat"><div class="num">${new Set(products.map(p=>p.series)).size}</div><div class="lbl">独立系列</div></div>
+  `;
+
+  // Filter
+  let filtered = seriesData;
+  if (activeFilter !== 'all') {
+    filtered = seriesData.filter(s => s.categories.includes(activeFilter));
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(s => s.name.toLowerCase().includes(q));
+  }
+
+  // Render grid
+  document.getElementById('seriesGrid').innerHTML = filtered.map(s => `
+    <div class="card" onclick="this.classList.toggle('expanded')">
+      <div class="expand-icon">▼</div>
+      <div class="series-header">
+        ${s.thumb ? `<img src="${s.thumb}" class="series-thumb" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+        <div class="series-name">${s.name}</div>
+      </div>
+      <div class="series-meta">
+        <span class="count-badge">${s.count}件</span>
+        ${s.categories.map(c => `<span class="cat-tag">${c}</span>`).join('')}
+        <span>库存${s.totalStock}</span>
+        <span>¥${s.minPrice.toLocaleString()}~¥${s.maxPrice.toLocaleString()}</span>
+      </div>
+      <div class="detail">
+        ${renderInfoBlock(s.info)}
+        ${s.items.map(p => `
+          <div class="detail-item">
+            ${p.image ? `<img src="${p.image}" class="detail-img" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+            <span class="detail-name">${p.productName}</span>
+            <div class="detail-meta">
+              ${p.sizeDisplay ? `<span class="detail-sizes">${p.sizeDisplay}</span>` : ''}
+              ${p.discount ? `<span class="detail-sizes" style="background:#c0392b;color:#fff;">${p.discount}</span>` : ''}
+              ${p.discountPrice ? `<span class="detail-retail">¥${p.retailPrice.toLocaleString()}</span>` : ''}
+              <span class="detail-price">¥${(p.discountPrice||p.retailPrice).toLocaleString()}</span>
+              <span class="detail-stock">×${p.totalStock}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+seriesData = buildSeriesData();
+render();
+setupEvents();
+scrollToSeries();
+</script>
+</body>
+</html>

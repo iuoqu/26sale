@@ -1,0 +1,10 @@
+_backup/
+.workbuddy/
+*.py
+*.pdf
+*.xlsx
+*.xls
+products.json
+products_merged.json
+series_info.json
+nul
