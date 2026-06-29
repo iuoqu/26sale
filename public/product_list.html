@@ -517,6 +517,29 @@ function clearSearch() {
   renderProducts();
 }
 
+// 把 Coach 色码翻译成中文颜色。按"更具体的 token 优先"顺序匹配，
+// 匹配不到的内部编码保留原样（避免乱猜）。
+function decodeColor(rawCode) {
+  if (!rawCode) return '';
+  const code = rawCode.toUpperCase();
+  // 顺序很重要：更长/更具体的放前面，避免 BR 抢在 BRN/WBR 前
+  const tokens = [
+    ['BLK', '黑'], ['LHBLK', '黑'], ['1ZBLK', '黑'], ['V5BLK', '黑'],
+    ['/BK', '黑'], ['OFW', '米白'], ['WHT', '白'], ['/WH', '白'], ['WT', '白'],
+    ['DBR', '深棕'], ['WBR', '酒红棕'], ['BRN', '棕'], ['TNR', '棕褐'], ['TN2', '棕褐'],
+    ['MPL', '枫棕'], ['KHA', '卡其'], ['SND', '沙色'], ['SAD', '沙棕'],
+    ['HGR', '麻灰'], ['GRY', '灰'], ['MBL', '蓝'], ['NAV', '海军蓝'], ['/NV', '海军蓝'],
+    ['BLU', '蓝'], ['/OL', '橄榄绿'], ['OYG', '绿'], ['GRN', '绿'],
+    ['PIN', '粉'], ['PNK', '粉'], ['YLW', '黄'], ['YEL', '黄'], ['Y05', '黄'],
+    ['RED', '红'], ['CRM', '奶油'], ['CRE', '奶油'], ['PRP', '紫'], ['BEI', '米色'],
+    ['BLC', '米白'], ['BK/', '黑'], ['DKH', '深卡其'], ['DEN', '牛仔蓝'], ['LBL', '浅蓝']
+  ];
+  for (const [token, name] of tokens) {
+    if (code.includes(token)) return name;
+  }
+  return rawCode; // 无法确定的内部色码，原样显示
+}
+
 function getProductTags(p) {
   const tags = [];
 
@@ -529,21 +552,8 @@ function getProductTags(p) {
     }
   }
 
-  // Color mapping to Chinese names
-  const colorMap = {
-    'BLK': '黑', 'WHT': '白', 'BLU': '蓝', 'RED': '红', 'GRN': '绿',
-    'HGR': '灰绿', 'BRN': '棕', 'GRY': '灰', 'NAV': '深蓝', 'BEI': '米',
-    'PRP': '紫', 'YEL': '黄', 'PNK': '粉', 'LHBLK': '浅黑', 'B4': '驼', 'MPL': '枫叶'
-  };
-
   if (p.colorCode) {
-    let colorName = p.colorCode;
-    for (const [code, name] of Object.entries(colorMap)) {
-      if (p.colorCode.includes(code)) {
-        colorName = name;
-        break;
-      }
-    }
+    const colorName = decodeColor(p.colorCode);
     tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
   }
 
