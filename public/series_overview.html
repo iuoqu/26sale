@@ -509,13 +509,16 @@ async function sendChatMessage() {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({
+        message: message,
+        products: []
+      })
     });
 
     const data = await response.json();
     const aiMsg = document.createElement('div');
     aiMsg.className = 'chat-message ai';
-    aiMsg.textContent = data.reply;
+    aiMsg.textContent = data.message || data.reply || '抱歉，服务暂时不可用';
     messages.appendChild(aiMsg);
     messages.scrollTop = messages.scrollHeight;
   } catch (error) {

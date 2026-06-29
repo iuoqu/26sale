@@ -58,7 +58,7 @@ function matchesColor(colorCode, userQuery) {
 function analyzeSeriesCharacteristics(products) {
   const seriesStats = {};
 
-  products.forEach(p => {
+  productList.forEach(p => {
     const series = p.series || '其他';
     if (!seriesStats[series]) {
       seriesStats[series] = {
@@ -91,13 +91,16 @@ export default async function handler(req, res) {
   try {
     const { message, products } = req.body;
 
-    if (!message || !products) {
-      return res.status(400).json({ error: 'Missing message or products' });
+    if (!message) {
+      return res.status(400).json({ error: 'Missing message' });
     }
+
+    // 如果没有products，也能工作
+    const productList = products || [];
 
     // 按系列分组产品
     const seriesByGroup = {};
-    products.forEach(p => {
+    productList.forEach(p => {
       const series = p.series || '其他';
       if (!seriesByGroup[series]) {
         seriesByGroup[series] = [];
@@ -106,7 +109,7 @@ export default async function handler(req, res) {
     });
 
     // 分析系列特性
-    const seriesStats = analyzeSeriesCharacteristics(products);
+    const seriesStats = analyzeSeriesCharacteristics(productList);
 
     // 构建系列信息摘要（不涉及库存）
     const seriesSummary = Object.entries(seriesByGroup).map(([series, items]) => {
@@ -116,7 +119,10 @@ export default async function handler(req, res) {
       return `${series}: ${items.length}款 | 分类: ${categories} | 款式: ${types.join(',')} | 颜色数: ${stats.colorCount}`;
     }).join('\n');
 
-    const systemPrompt = `你是一个专业的时尚购物顾问。用户会描述他们想要的产品，你的任务是理解需求并推荐。
+    let systemPrompt;
+
+    if (productList.length > 0) {
+      systemPrompt = `你是一个专业的时尚购物顾问。用户会描述他们想要的产品，你的任务是理解需求并推荐。
 
 这是一个特卖活动，包含众多设计师品牌的精选商品。
 
@@ -139,6 +145,19 @@ export default async function handler(req, res) {
 ${seriesSummary}
 
 用中文回复，直接推荐产品SKU。`;
+    } else {
+      systemPrompt = `你是一个专业的时尚购物顾问。这是Coach品牌的特卖活动。
+
+主要系列包括：
+- Tabby: 经典包款系列，款式丰富，颜色多样
+- Brooklyn: 现代设计系列
+- Chain Tabby: 链条设计款
+- Horse & Carriage: 传统纹样系列
+- Heritage C: 经典C元素
+
+用户可能会问关于产品、系列推荐、颜色、款式等。
+用中文回复，友好热情地回答问题。`;
+    }
 
     const response = await client.messages.create({
       model: 'claude-3-5-sonnet-20241022',
@@ -167,14 +186,14 @@ ${seriesSummary}
 
     if (hasColorQuery) {
       // 颜色优先级最高
-      products.forEach(p => {
+      productList.forEach(p => {
         if (matchesColor(p.colorCode, userQueryLower)) {
           matchedProducts.push(p);
         }
       });
     } else {
       // 检查系列、款式类型、类别
-      products.forEach(p => {
+      productList.forEach(p => {
         let matches = false;
         const series = p.series || '其他';
 
