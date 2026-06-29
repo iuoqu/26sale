@@ -424,15 +424,59 @@ function getFilteredProducts() {
   return filtered;
 }
 
+function getProductTags(p) {
+  const tags = [];
+
+  // 款式类型标签
+  const types = ['T SHIRT', 'SWEATSHIRT', 'JACKET', 'SHIRT', 'COAT', 'DRESS', 'SKIRT', 'PANTS', 'SHORTS'];
+  for (const type of types) {
+    if (p.productName.toUpperCase().includes(type)) {
+      tags.push({ label: type, type: 'style', color: '#8B6F47' });
+      break;
+    }
+  }
+
+  // 颜色标签（中文名称）
+  const colorMap = {
+    'BLK': '黑', 'WHT': '白', 'BLU': '蓝', 'RED': '红', 'GRN': '绿',
+    'HGR': '灰绿', 'BRN': '棕', 'GRY': '灰', 'NAV': '深蓝', 'BEI': '米',
+    'PRP': '紫', 'YEL': '黄', 'PNK': '粉', 'LHBLK': '浅黑', 'B4': '驼', 'MPL': '枫叶'
+  };
+
+  if (p.colorCode) {
+    let colorName = p.colorCode;
+    for (const [code, name] of Object.entries(colorMap)) {
+      if (p.colorCode.includes(code)) {
+        colorName = name;
+        break;
+      }
+    }
+    tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
+  }
+
+  // 系列标签
+  if (p.series) {
+    tags.push({ label: p.series, type: 'series', color: '#d4b574' });
+  }
+
+  // 折扣标签
+  if (p.discountPrice && p.discountPrice < p.retailPrice) {
+    const discount = Math.round((p.discountPrice / p.retailPrice) * 10) / 10;
+    tags.push({ label: `${discount}折`, type: 'discount', color: '#c0392b' });
+  }
+
+  return tags;
+}
+
 function renderProducts() {
   const filtered = getFilteredProducts();
   const container = document.getElementById('productList');
-  
+
   if (filtered.length === 0) {
     container.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>`;
     return;
   }
-  
+
   container.innerHTML = filtered.map((p, i) => {
     const genderClass = p.gender === '男' ? 'male' : 'female';
     const price = p.discountPrice || p.retailPrice;
@@ -441,14 +485,17 @@ function renderProducts() {
     const stockClass = totalStock <= 1 ? 'stock-low' : 'stock-ok';
     const stockText = totalStock <= 1 ? `仅剩${totalStock}件` : `库存${totalStock}`;
     const sizeText = p.sizeDisplay || (p.size ? p.size : '');
-    
+    const tags = getProductTags(p);
+
     return `
     <div class="product-card ${genderClass}">
       ${p.image ? `<img src="${p.image}" class="product-thumb" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:24px;">📷</div>`}
       <div class="product-info">
         <div class="product-name">${p.productName}</div>
+        <div class="product-tags">
+          ${tags.map(tag => `<span class="tag" style="background-color:${tag.color};">${tag.label}</span>`).join('')}
+        </div>
         <div class="product-meta">
-          ${p.series ? `<a href="series_overview.html?series=${encodeURIComponent(p.series)}" class="meta-tag series-link" onclick="event.stopPropagation()">${p.series} ↗</a>` : ''}
           <span class="meta-tag style">${p.styleCode}</span>
           ${p.colorCode ? `<span class="meta-tag color">${p.colorCode}</span>` : ''}
           ${sizeText ? `<span class="meta-tag size">${sizeText}</span>` : ''}
