@@ -313,6 +313,13 @@ a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<script>
+// 检查登录状态，防止直接访问页面绕过登录
+if (!sessionStorage.getItem('authenticated')) {
+  window.location.href = 'login.html';
+}
+</script>
+
 <script src="product_data.js"></script>
 <script>
 // ========== STATE ==========

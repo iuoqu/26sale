@@ -122,6 +122,13 @@ body {
   <div class="sub">2026 SS COLLECTION</div>
 </div>
 
+<script>
+// 检查登录状态，防止直接访问页面绕过登录
+if (!sessionStorage.getItem('authenticated')) {
+  window.location.href = 'login.html';
+}
+</script>
+
 <div class="container">
   <a href="product_list.html" class="back-link">← BACK TO PRODUCT LIST</a>
 
