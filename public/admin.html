@@ -77,6 +77,8 @@ body {
 .btn-danger:hover { background: #a93226; }
 .btn-success { background: #2e7d32; color: #fff; margin-left: 10px; }
 .btn-success:hover { background: #1b5e20; }
+.btn-stop { background: #e67e22; color: #fff; margin-left: 10px; }
+.btn-stop:hover { background: #ca6f1e; }
 
 /* Log */
 .log {
@@ -143,13 +145,14 @@ body {
       <div class="stat-box warn"><div class="num" id="statColorMiss">—</div><div class="lbl">颜色待识别</div></div>
     </div>
     <button class="btn btn-primary" id="btnRun" onclick="startEnrich()">🚀 开始补全标签</button>
+    <button class="btn btn-stop" id="btnStop" onclick="stopEnrich()" style="display:none">⏹ 停止</button>
     <button class="btn btn-danger" id="btnClear" onclick="clearCache()">🗑 清除缓存</button>
     <button class="btn btn-success" id="btnDownload" onclick="downloadData()" style="display:none">⬇ 下载 product_data.js</button>
   </div>
 
   <!-- 进度 -->
   <div class="card" id="progressCard" style="display:none">
-    <h2>⏳ 识别进度</h2>
+    <h2>⏳ 识别进度 <span style="font-size:12px;color:#999;font-weight:400;">· 随时可停止，下次继续会跳过已识别的</span></h2>
     <div class="progress-text" id="progressText">准备中...</div>
     <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
     <div class="log" id="logBox"></div>
@@ -289,10 +292,18 @@ function log(msg, cls = '') {
 
 // ── 主流程 ─────────────────────────────────────────────────────────────────
 let running = false;
+let shouldStop = false;
+
+function stopEnrich() {
+  shouldStop = true;
+  document.getElementById('btnStop').textContent = '⏹ 停止中...';
+  document.getElementById('btnStop').disabled = true;
+}
 
 async function startEnrich() {
   if (running) return;
   running = true;
+  shouldStop = false;
 
   const analyzed = analyzeProducts();
   const queue = analyzed.filter(p => p.needGarment || p.needColor);
@@ -302,6 +313,9 @@ async function startEnrich() {
   document.getElementById('logBox').innerHTML = '';
   document.getElementById('resultBody').innerHTML = '';
   document.getElementById('btnRun').disabled = true;
+  document.getElementById('btnStop').style.display = 'inline-block';
+  document.getElementById('btnStop').textContent = '⏹ 停止';
+  document.getElementById('btnStop').disabled = false;
 
   log(`开始处理 ${queue.length} 件商品...`, 'dim');
 
@@ -309,6 +323,10 @@ async function startEnrich() {
   let done = 0;
 
   for (const p of queue) {
+    if (shouldStop) {
+      log(`\n⏹ 已停止。已处理 ${done}/${queue.length} 件，下次点开始会从断点继续。`, 'dim');
+      break;
+    }
     done++;
     const pct = Math.round(done / queue.length * 100);
     document.getElementById('progressBar').style.width = pct + '%';
@@ -376,11 +394,16 @@ async function startEnrich() {
   }
 
   running = false;
-  document.getElementById('progressText').textContent = `完成！共处理 ${done} 件`;
+  document.getElementById('btnStop').style.display = 'none';
   document.getElementById('btnRun').disabled = false;
   document.getElementById('btnDownload').style.display = 'inline-block';
   renderStats();
-  log(`\n全部完成。`, 'ok');
+  if (!shouldStop) {
+    document.getElementById('progressText').textContent = `✅ 全部完成！共处理 ${done} 件`;
+    log(`\n全部完成。`, 'ok');
+  } else {
+    document.getElementById('progressText').textContent = `⏹ 已停止（${done}/${queue.length}），可随时继续`;
+  }
 }
 
 // ── 下载 product_data.js ───────────────────────────────────────────────────
