@@ -25,7 +25,7 @@ async function callVision(apiKey, model, dataUrl, prompt) {
       max_tokens: 20,
       temperature: 0,
     }),
-    signal: AbortSignal.timeout(20000),
+    signal: AbortSignal.timeout(25000),
   });
 
   if (!res.ok) {

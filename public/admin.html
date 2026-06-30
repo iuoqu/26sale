@@ -398,7 +398,7 @@ async function startEnrich() {
       });
 
       let succeeded = false;
-      const maxAttempts = 3;
+      const maxAttempts = 5;
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         if (shouldStop) break;
         try {
