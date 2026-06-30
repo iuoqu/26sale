@@ -332,6 +332,9 @@ body {
 
 <div class="toolbar">
   <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索款式、颜色、系列...">
+  <select id="seriesFilter" style="padding:8px 12px;border:1px solid #d4cfc7;border-radius:8px;font-size:13px;background:#fff;color:#555;outline:none;cursor:pointer;flex-shrink:0;">
+    <option value="">📂 全部系列</option>
+  </select>
 </div>
 
 <div class="cat-chips" id="catChips"></div>
@@ -475,6 +478,7 @@ const COLOR_DOTS = {
 
 let searchQuery = '';
 let selectedColor = '';
+let activeSeries = '';
 
 function getEffectiveColor(p) {
   return p.colorLabel || decodeColor(p.colorCode);
@@ -482,6 +486,9 @@ function getEffectiveColor(p) {
 
 function getGroups() {
   let filtered = PRODUCTS;
+  if (activeSeries) {
+    filtered = filtered.filter(p => p.series === activeSeries);
+  }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(p =>
@@ -596,9 +603,26 @@ function render() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Build series dropdown
+  const seriesSet = [...new Set(PRODUCTS.map(p => p.series).filter(Boolean))].sort();
+  const sel = document.getElementById('seriesFilter');
+  seriesSet.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+  // If arriving from series_overview with ?series= param
+  const urlSeries = new URLSearchParams(location.search).get('series');
+  if (urlSeries) { activeSeries = urlSeries; sel.value = urlSeries; }
+
   render();
+
   document.getElementById('searchBox').addEventListener('input', (e) => {
     searchQuery = e.target.value;
+    render();
+  });
+  sel.addEventListener('change', (e) => {
+    activeSeries = e.target.value;
     render();
   });
   const chatInput = document.getElementById('chatInput');
