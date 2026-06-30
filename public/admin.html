@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>管理 — 2026 SALES</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  background: #f5f3ef; color: #1a1a2e; min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff; padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.header-logo svg { width: 100%; height: 100%; }
+.header-title { display: flex; flex-direction: column; gap: 2px; }
+.header h1 { font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #c9a96e; }
+.header .subtitle { font-size: 11px; opacity: 0.7; }
+.header-nav { display: flex; gap: 12px; }
+.nav-btn {
+  padding: 8px 16px; background: rgba(255,255,255,0.1); color: #fff;
+  border: 1px solid rgba(201,169,110,0.3); border-radius: 6px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.nav-btn:hover, .nav-btn.active { background: #c9a96e; color: #1a1a2e; border-color: #c9a96e; }
+
+.container { max-width: 800px; margin: 24px auto; padding: 0 16px; }
+
+.card {
+  background: #fff; border-radius: 12px; padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px;
+}
+.card h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1a1a2e; }
+
+/* Stats */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-box {
+  background: #f8f6f2; border-radius: 8px; padding: 14px; text-align: center;
+}
+.stat-box .num { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+.stat-box .lbl { font-size: 12px; color: #999; margin-top: 4px; }
+.stat-box.warn .num { color: #c0392b; }
+.stat-box.ok .num { color: #2e7d32; }
+
+/* Progress */
+.progress-wrap {
+  background: #f0ede6; border-radius: 8px; height: 12px;
+  overflow: hidden; margin: 12px 0;
+}
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, #c9a96e, #d4b574);
+  border-radius: 8px; width: 0%; transition: width 0.3s;
+}
+.progress-text { font-size: 13px; color: #666; margin-bottom: 8px; }
+
+/* Buttons */
+.btn {
+  padding: 10px 24px; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  display: inline-block;
+}
+.btn-primary { background: #1a1a2e; color: #fff; }
+.btn-primary:hover { background: #0f3460; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-danger { background: #c0392b; color: #fff; margin-left: 10px; }
+.btn-danger:hover { background: #a93226; }
+.btn-success { background: #2e7d32; color: #fff; margin-left: 10px; }
+.btn-success:hover { background: #1b5e20; }
+
+/* Log */
+.log {
+  background: #1a1a2e; color: #c9a96e; border-radius: 8px;
+  padding: 14px; font-family: monospace; font-size: 12px;
+  height: 220px; overflow-y: auto; margin-top: 16px;
+  white-space: pre-wrap; word-break: break-all;
+}
+.log .ok { color: #69d47e; }
+.log .err { color: #ff6b6b; }
+.log .dim { color: #666; }
+
+/* Result table */
+.result-table {
+  width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px;
+}
+.result-table th {
+  text-align: left; padding: 8px 12px; background: #f0ede6;
+  color: #666; font-weight: 600; font-size: 12px;
+}
+.result-table td { padding: 8px 12px; border-bottom: 1px solid #f0ede6; }
+.result-table tr:hover td { background: #fafafa; }
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; color: #fff; margin-right: 4px;
+}
+.tag-garment { background: #8B6F47; }
+.tag-color   { background: #c9a96e; color: #1a1a2e; }
+.tag-new     { background: #2e7d32; }
+.tag-exist   { background: #999; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+        <rect x="0" y="0" width="16" height="40" fill="#1A2640"/>
+        <rect x="22" y="15" width="16" height="25" fill="#C6A875"/>
+        <circle cx="30" cy="5" r="5" fill="#1A2640"/>
+      </svg>
+    </div>
+    <div class="header-title">
+      <h1>2026 SALES</h1>
+      <div class="subtitle">管理后台</div>
+    </div>
+  </div>
+  <div class="header-nav">
+    <a href="product_list.html" class="nav-btn">← 返回</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 统计 -->
+  <div class="card">
+    <h2>📊 标签覆盖情况</h2>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-box"><div class="num" id="statTotal">—</div><div class="lbl">总SKU</div></div>
+      <div class="stat-box ok"><div class="num" id="statGarmentOk">—</div><div class="lbl">品类已识别</div></div>
+      <div class="stat-box warn"><div class="num" id="statGarmentMiss">—</div><div class="lbl">品类待识别</div></div>
+      <div class="stat-box ok"><div class="num" id="statColorOk">—</div><div class="lbl">颜色已识别</div></div>
+      <div class="stat-box warn"><div class="num" id="statColorMiss">—</div><div class="lbl">颜色待识别</div></div>
+    </div>
+    <button class="btn btn-primary" id="btnRun" onclick="startEnrich()">🚀 开始补全标签</button>
+    <button class="btn btn-danger" id="btnClear" onclick="clearCache()">🗑 清除缓存</button>
+    <button class="btn btn-success" id="btnDownload" onclick="downloadData()" style="display:none">⬇ 下载 product_data.js</button>
+  </div>
+
+  <!-- 进度 -->
+  <div class="card" id="progressCard" style="display:none">
+    <h2>⏳ 识别进度</h2>
+    <div class="progress-text" id="progressText">准备中...</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="log" id="logBox"></div>
+  </div>
+
+  <!-- 结果预览 -->
+  <div class="card" id="resultCard" style="display:none">
+    <h2>✅ 识别结果</h2>
+    <table class="result-table" id="resultTable">
+      <thead>
+        <tr>
+          <th>SKU</th><th>商品名</th><th>品类</th><th>颜色</th><th>状态</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// 检查登录
+if (!sessionStorage.getItem('authenticated')) {
+  window.location.href = 'login.html';
+}
+</script>
+<script src="product_data.js"></script>
+<script>
+// ── 颜色 / 品类解析（与主站一致）──────────────────────────────────────────
+function decodeColorFromCode(raw) {
+  if (!raw) return '';
+  const c = raw.toUpperCase();
+  const t = [
+    ['BLK','黑'],['LHBLK','黑'],['1ZBLK','黑'],['V5BLK','黑'],['/BK','黑'],['BK/','黑'],
+    ['OFW','米白'],['WHT','白'],['/WH','白'],['WT','白'],
+    ['DBR','深棕'],['WBR','酒红棕'],['BRN','棕'],['TNR','棕褐'],['TN2','棕褐'],
+    ['MPL','枫棕'],['KHA','卡其'],['SND','沙色'],['SAD','沙棕'],
+    ['HGR','麻灰'],['GRY','灰'],['MBL','蓝'],['NAV','海军蓝'],['/NV','海军蓝'],
+    ['BLU','蓝'],['/OL','橄榄绿'],['OYG','绿'],['GRN','绿'],
+    ['PIN','粉'],['PNK','粉'],['YLW','黄'],['YEL','黄'],['Y05','黄'],
+    ['RED','红'],['CRM','奶油'],['CRE','奶油'],['PRP','紫'],['BEI','米色'],
+    ['BLC','米白'],['DKH','深卡其'],['DEN','牛仔蓝'],['LBL','浅蓝'],
+    ['CHR','棕红'],['OY2','深绿'],['BK_CQ','黑红'],
+  ];
+  for (const [k,v] of t) if (c.includes(k)) return v;
+  return '';
+}
+
+function decodeGarmentFromName(n) {
+  if (!n) return '';
+  const u = n.toUpperCase();
+  const types = [
+    ['T-SHIRT','T恤'],['T SHIRT','T恤'],['T-SH','T恤'],['T SHI','T恤'],['T SH','T恤'],[' TEE','T恤'],['TANK','背心'],
+    ['SWEATSHIRT','卫衣'],['HOODIE','连帽衫'],['CREWNECK SWEA','毛衣'],['SWEATER','毛衣'],['CREWNECK','圆领衫'],['CARDIGAN','开衫'],
+    ['POLO','Polo衫'],['POL','Polo衫'],['BLOUSON','夹克'],['BLOUSE','衬衫'],['BOMBER','飞行夹克'],['BOM','飞行夹克'],
+    ['WINDBREAKER','风衣'],['WINDREAKER','风衣'],['TRENCH','风衣'],['BALMACAAN','大衣'],['TRUCKER','夹克'],['BLAZER','西装外套'],
+    ['PUFFER','羽绒服'],['DOWN VEST','羽绒马甲'],['VEST','马甲'],['RACER','机车夹克'],
+    ['JACKET','夹克'],['JACKE','夹克'],['JACK','夹克'],['LEATHER J','夹克'],['JAC','夹克'],
+    ['CARPENTER PANT','工装裤'],['JEANS','牛仔裤'],['JEAN','牛仔裤'],['TROUSER','长裤'],['JOGGER','运动裤'],
+    ['PANTS','裤子'],['PANT','裤子'],['SHORTS','短裤'],
+    ['COAT','大衣'],['DRESS','连衣裙'],['SKIRT','半身裙'],['SHIRT','衬衫'],['SINGLE BREASTED','西装外套'],
+  ];
+  for (const [k,v] of types) if (u.includes(k)) return v;
+  const sx = [['CAR','开衫'],['T S','T恤'],['PLEATED S','半身裙'],['C J','夹克']];
+  for (const [k,v] of sx) if (u.endsWith(k)) return v;
+  return '';
+}
+
+// ── 缓存操作 ───────────────────────────────────────────────────────────────
+const CACHE_KEY = 'productEnrichment';
+
+function getCache() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch { return {}; }
+}
+function saveCache(cache) {
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+}
+
+// ── 计算各商品需不需要识别 ─────────────────────────────────────────────────
+function analyzeProducts() {
+  const cache = getCache();
+  return PRODUCTS.map(p => {
+    const cached = cache[p.styleCode] || {};
+    const garmentFromName = p.type === '衣' ? decodeGarmentFromName(p.productName) : (p.type || '');
+    const colorFromCode   = decodeColorFromCode(p.colorCode);
+
+    const garmentLabel = cached.garmentLabel || p.garmentLabel || garmentFromName;
+    const colorLabel   = cached.colorLabel   || p.colorLabel   || colorFromCode;
+
+    const needGarment = p.type === '衣' && !garmentLabel && !!p.image;
+    const needColor   = !colorLabel && !!p.image;
+
+    return { ...p, garmentLabel, colorLabel, needGarment, needColor, cached };
+  });
+}
+
+// ── 渲染统计 ───────────────────────────────────────────────────────────────
+function renderStats() {
+  const analyzed = analyzeProducts();
+  const clothes  = analyzed.filter(p => p.type === '衣');
+
+  document.getElementById('statTotal').textContent      = analyzed.length;
+  document.getElementById('statGarmentOk').textContent  = clothes.filter(p => !p.needGarment).length;
+  document.getElementById('statGarmentMiss').textContent = clothes.filter(p => p.needGarment).length;
+  document.getElementById('statColorOk').textContent    = analyzed.filter(p => !p.needColor).length;
+  document.getElementById('statColorMiss').textContent  = analyzed.filter(p => p.needColor).length;
+
+  const needAny = analyzed.filter(p => p.needGarment || p.needColor).length;
+  document.getElementById('btnDownload').style.display =
+    Object.keys(getCache()).length > 0 ? 'inline-block' : 'none';
+  document.getElementById('btnRun').textContent =
+    needAny > 0 ? `🚀 开始补全标签（${needAny} 件待处理）` : '✅ 标签已全部补全';
+  document.getElementById('btnRun').disabled = needAny === 0;
+}
+
+// ── 图片 → base64 ─────────────────────────────────────────────────────────
+async function imageToBase64(imgPath) {
+  const res = await fetch(imgPath);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result); // data:image/png;base64,...
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ── 日志 ───────────────────────────────────────────────────────────────────
+function log(msg, cls = '') {
+  const box = document.getElementById('logBox');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── 主流程 ─────────────────────────────────────────────────────────────────
+let running = false;
+
+async function startEnrich() {
+  if (running) return;
+  running = true;
+
+  const analyzed = analyzeProducts();
+  const queue = analyzed.filter(p => p.needGarment || p.needColor);
+
+  document.getElementById('progressCard').style.display = 'block';
+  document.getElementById('resultCard').style.display   = 'block';
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('resultBody').innerHTML = '';
+  document.getElementById('btnRun').disabled = true;
+
+  log(`开始处理 ${queue.length} 件商品...`, 'dim');
+
+  const cache = getCache();
+  let done = 0;
+
+  for (const p of queue) {
+    done++;
+    const pct = Math.round(done / queue.length * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${done} / ${queue.length}（${pct}%）`;
+
+    let dataUrl;
+    try {
+      dataUrl = await imageToBase64(p.image);
+    } catch {
+      log(`⚠ ${p.styleCode} 图片加载失败`, 'err');
+      continue;
+    }
+
+    let garmentLabel = p.garmentLabel;
+    let colorLabel   = p.colorLabel;
+    let isNew = false;
+
+    try {
+      const res = await fetch('/api/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataUrl,
+          type: p.type,
+          productName: p.productName,
+          needGarment: p.needGarment,
+          needColor: p.needColor,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        log(`✗ ${p.styleCode}: ${err.error || res.status}`, 'err');
+        continue;
+      }
+
+      const data = await res.json();
+      if (data.garmentLabel) { garmentLabel = data.garmentLabel; isNew = true; }
+      if (data.colorLabel)   { colorLabel   = data.colorLabel;   isNew = true; }
+
+      if (isNew) {
+        cache[p.styleCode] = { garmentLabel, colorLabel };
+        saveCache(cache);
+      }
+
+      log(`✓ ${p.styleCode.padEnd(8)} 品类=${garmentLabel || '—'} 颜色=${colorLabel || '—'}  [${data.model || ''}]`, 'ok');
+    } catch (e) {
+      log(`✗ ${p.styleCode}: ${e.message}`, 'err');
+      continue;
+    }
+
+    // 写入结果表
+    const tbody = document.getElementById('resultBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><code>${p.styleCode}</code></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.productName}</td>
+      <td>${garmentLabel ? `<span class="tag tag-garment">${garmentLabel}</span>` : '—'}</td>
+      <td>${colorLabel   ? `<span class="tag tag-color">${colorLabel}</span>`     : '—'}</td>
+      <td><span class="tag ${isNew ? 'tag-new' : 'tag-exist'}">${isNew ? '新识别' : '已有'}</span></td>
+    `;
+    tbody.appendChild(tr);
+
+    await new Promise(r => setTimeout(r, 150));
+  }
+
+  running = false;
+  document.getElementById('progressText').textContent = `完成！共处理 ${done} 件`;
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('btnDownload').style.display = 'inline-block';
+  renderStats();
+  log(`\n全部完成。`, 'ok');
+}
+
+// ── 下载 product_data.js ───────────────────────────────────────────────────
+function downloadData() {
+  const cache = getCache();
+  const enriched = PRODUCTS.map(p => {
+    const c = cache[p.styleCode] || {};
+    const out = { ...p };
+    if (c.garmentLabel) out.garmentLabel = c.garmentLabel;
+    if (c.colorLabel)   out.colorLabel   = c.colorLabel;
+    return out;
+  });
+  const content = `const PRODUCTS = ${JSON.stringify(enriched)};\n`;
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'product_data.js';
+  a.click();
+}
+
+// ── 清除缓存 ───────────────────────────────────────────────────────────────
+function clearCache() {
+  if (!confirm('确定清除所有识别缓存？')) return;
+  localStorage.removeItem(CACHE_KEY);
+  document.getElementById('resultBody').innerHTML = '';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('progressCard').style.display = 'none';
+  renderStats();
+}
+
+// ── 初始化 ─────────────────────────────────────────────────────────────────
+renderStats();
+</script>
+</body>
+</html>

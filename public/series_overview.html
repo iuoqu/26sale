@@ -343,6 +343,20 @@ if (!sessionStorage.getItem('authenticated')) {
 </div>
 
 <script src="product_data.js"></script>
+<script>
+(function() {
+  try {
+    const cache = JSON.parse(localStorage.getItem('productEnrichment') || '{}');
+    if (!Object.keys(cache).length) return;
+    PRODUCTS.forEach(p => {
+      const c = cache[p.styleCode];
+      if (!c) return;
+      if (c.garmentLabel && !p.garmentLabel) p.garmentLabel = c.garmentLabel;
+      if (c.colorLabel   && !p.colorLabel)   p.colorLabel   = c.colorLabel;
+    });
+  } catch(e) {}
+})();
+</script>
 <script src="series_info.js"></script>
 <script>
 const products = PRODUCTS;

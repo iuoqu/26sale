@@ -534,6 +534,21 @@ if (!sessionStorage.getItem('authenticated')) {
 
 <script src="product_data.js"></script>
 <script>
+// 从 localStorage 读取 admin 补全的标签，合并进 PRODUCTS
+(function() {
+  try {
+    const cache = JSON.parse(localStorage.getItem('productEnrichment') || '{}');
+    if (!Object.keys(cache).length) return;
+    PRODUCTS.forEach(p => {
+      const c = cache[p.styleCode];
+      if (!c) return;
+      if (c.garmentLabel && !p.garmentLabel) p.garmentLabel = c.garmentLabel;
+      if (c.colorLabel   && !p.colorLabel)   p.colorLabel   = c.colorLabel;
+    });
+  } catch(e) {}
+})();
+</script>
+<script>
 // ========== STATE ==========
 let activeCategory = '全部';
 let activeSort = 'name';
