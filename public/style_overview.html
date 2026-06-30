@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>PRIVATE SALE — 2026 SS COLLECTION</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #f5f3ef;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+.header-logo {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-logo svg {
+  width: 100%;
+  height: 100%;
+}
+.header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.header h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0;
+  color: #c9a96e;
+}
+.header .subtitle {
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+}
+.header-nav {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.nav-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+.nav-btn:hover {
+  background: #c9a96e;
+  color: #1a1a2e;
+  border-color: #c9a96e;
+}
+.nav-btn.active {
+  background: #c9a96e;
+  color: #1a1a2e;
+  border-color: #c9a96e;
+}
+
+/* Toolbar */
+.toolbar {
+  background: #fff;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e8e4dd;
+  position: sticky;
+  top: 50px;
+  z-index: 99;
+}
+.search-box {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 14px;
+  border: 1px solid #d4cfc7;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: #c9a96e; }
+
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* Style Group */
+.style-group {
+  margin-bottom: 24px;
+}
+.style-group-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  padding: 16px 12px 8px;
+  border-left: 4px solid #c9a96e;
+  background: rgba(201, 169, 110, 0.05);
+  margin: 20px 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.style-count {
+  font-size: 14px;
+  color: #999;
+  font-weight: 400;
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s;
+  border-left: 3px solid transparent;
+}
+.product-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+.product-card.male { border-left-color: #2f5496; }
+.product-card.female { border-left-color: #c0392b; }
+
+.product-image {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f5f3ef;
+  cursor: zoom-in;
+}
+.product-image:hover {
+  transform: scale(1.02);
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-meta {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.meta-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #f0ede6;
+  color: #666;
+}
+.meta-tag.style { background: #e8f0fe; color: #2f5496; }
+.meta-tag.color { background: #fef3e2; color: #b8730a; }
+.meta-tag.size { background: #e8f5e9; color: #2e7d32; }
+
+.product-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid #f0ede6;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-original { font-size: 14px; color: #1a1a2e; font-weight: 600; }
+.price-retail { font-size: 12px; color: #999; text-decoration: line-through; }
+.price-discount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c0392b;
+}
+
+.discount-badge {
+  display: inline-block;
+  background: #c0392b;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 16px;
+  }
+  .header-nav {
+    width: 100%;
+    justify-content: space-around;
+  }
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+        <rect x="0" y="0" width="16" height="40" fill="#1A2640" />
+        <rect x="22" y="15" width="16" height="25" fill="#C6A875" />
+        <circle cx="30" cy="5" r="5" fill="#1A2640" />
+      </svg>
+    </div>
+    <div class="header-title">
+      <h1>2026 SALES</h1>
+      <div class="subtitle">PRIVATE SALE</div>
+    </div>
+  </div>
+  <div class="header-nav">
+    <a href="product_list.html" class="nav-btn">SKU</a>
+    <a href="style_overview.html" class="nav-btn active">风格</a>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索款式、颜色、系列...">
+</div>
+
+<div class="container" id="styleContainer"></div>
+
+<script>
+// 检查登录状态
+if (!sessionStorage.getItem('authenticated')) {
+  window.location.href = 'login.html';
+}
+</script>
+
+<script src="product_data.js"></script>
+
+<script>
+// 从productName识别中文款式类型
+function decodeType(productName, category) {
+  if (!productName) return '其他';
+  const u = productName.toUpperCase();
+  const types = [
+    ['T-SHIRT', 'T恤'], ['T SHIRT', 'T恤'], ['T-SH', 'T恤'], ['T SHI', 'T恤'], ['T SH', 'T恤'], [' TEE', 'T恤'], ['TANK', '背心'],
+    ['SWEATSHIRT', '卫衣'], ['HOODIE', '连帽衫'], ['CREWNECK SWEA', '毛衣'], ['SWEATER', '毛衣'], ['CREWNECK', '圆领衫'], ['CARDIGAN', '开衫'],
+    ['POLO', 'Polo衫'], ['POL', 'Polo衫'], ['BLOUSON', '夹克'], ['BLOUSE', '衬衫'], ['BOMBER', '飞行夹克'], ['BOM', '飞行夹克'],
+    ['WINDBREAKER', '风衣'], ['WINDREAKER', '风衣'], ['TRENCH', '风衣'], ['BALMACAAN', '大衣'], ['TRUCKER', '夹克'], ['BLAZER', '西装外套'],
+    ['PUFFER', '羽绒服'], ['DOWN VEST', '羽绒马甲'], ['VEST', '马甲'], ['RACER', '机车夹克'],
+    ['JACKET', '夹克'], ['JACKE', '夹克'], ['JACK', '夹克'], ['LEATHER J', '夹克'], ['JAC', '夹克'],
+    ['CARPENTER PANT', '工装裤'], ['JEANS', '牛仔裤'], ['JEAN', '牛仔裤'], ['TROUSER', '长裤'], ['JOGGER', '运动裤'], ['PANTS', '裤子'], ['PANT', '裤子'], ['SHORTS', '短裤'],
+    ['COAT', '大衣'], ['DRESS', '连衣裙'], ['SKIRT', '半身裙'], ['SHIRT', '衬衫']
+  ];
+  for (const [token, name] of types) {
+    if (u.includes(token)) return name;
+  }
+  if (category === '男衣' || category === '女衣') return '服装';
+  return '其他';
+}
+
+function decodeColor(rawCode) {
+  if (!rawCode) return '';
+  const code = rawCode.toUpperCase();
+  const tokens = [
+    ['BLK', '黑'], ['LHBLK', '黑'], ['1ZBLK', '黑'], ['V5BLK', '黑'],
+    ['/BK', '黑'], ['OFW', '米白'], ['WHT', '白'], ['/WH', '白'], ['WT', '白'],
+    ['DBR', '深棕'], ['WBR', '酒红棕'], ['BRN', '棕'], ['TNR', '棕褐'], ['TN2', '棕褐'],
+    ['MPL', '枫棕'], ['KHA', '卡其'], ['SND', '沙色'], ['SAD', '沙棕'],
+    ['HGR', '麻灰'], ['GRY', '灰'], ['MBL', '蓝'], ['NAV', '海军蓝'], ['/NV', '海军蓝'],
+    ['BLU', '蓝'], ['/OL', '橄榄绿'], ['OYG', '绿'], ['GRN', '绿'],
+    ['PIN', '粉'], ['PNK', '粉'], ['YLW', '黄'], ['YEL', '黄'], ['Y05', '黄'],
+    ['RED', '红'], ['CRM', '奶油'], ['CRE', '奶油'], ['PRP', '紫'], ['BEI', '米色'],
+    ['BLC', '米白'], ['BK/', '黑'], ['DKH', '深卡其'], ['DEN', '牛仔蓝'], ['LBL', '浅蓝']
+  ];
+  for (const [token, name] of tokens) {
+    if (code.includes(token)) return name;
+  }
+  return rawCode;
+}
+
+function openImageModal(src) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;cursor:zoom-out;';
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;';
+  img.onclick = (e) => e.stopPropagation();
+  modal.appendChild(img);
+  modal.onclick = () => modal.remove();
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.remove(); }, { once: true });
+  document.body.appendChild(modal);
+}
+
+let searchQuery = '';
+
+function renderStyles() {
+  const container = document.getElementById('styleContainer');
+  let filtered = PRODUCTS;
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      (p.styleCode && p.styleCode.toLowerCase().includes(q)) ||
+      (p.colorCode && p.colorCode.toLowerCase().includes(q)) ||
+      (p.productName && p.productName.toLowerCase().includes(q)) ||
+      (p.series && p.series.toLowerCase().includes(q))
+    );
+  }
+
+  // 按款式分组
+  const styleGroups = {};
+  filtered.forEach(p => {
+    const style = decodeType(p.productName, p.category);
+    if (!styleGroups[style]) {
+      styleGroups[style] = [];
+    }
+    styleGroups[style].push(p);
+  });
+
+  if (Object.keys(styleGroups).length === 0) {
+    container.innerHTML = '<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>';
+    return;
+  }
+
+  const styleOrder = ['T恤', '衬衫', 'Polo衫', '卫衣', '毛衣', '开衫', '夹克', '飞行夹克', '风衣', '大衣', '连帽衫', '圆领衫',
+                      '西装外套', '背心', '马甲', '羽绒服', '羽绒马甲', '机车夹克', '工装裤', '牛仔裤', '长裤', '运动裤', '短裤',
+                      '连衣裙', '半身裙', '其他'];
+
+  const sortedStyles = Object.keys(styleGroups).sort((a, b) => {
+    const aIdx = styleOrder.indexOf(a);
+    const bIdx = styleOrder.indexOf(b);
+    return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+  });
+
+  let html = '';
+  sortedStyles.forEach(style => {
+    const products = styleGroups[style];
+    html += `
+      <div class="style-group">
+        <div class="style-group-title">
+          👕 ${style}
+          <span class="style-count">(${products.length}件)</span>
+        </div>
+        <div class="product-grid">
+          ${products.map(p => {
+            const genderClass = p.gender === '男' ? 'male' : 'female';
+            const price = p.discountPrice || p.retailPrice;
+            const hasDiscount = p.discountPrice && p.discountPrice !== p.retailPrice;
+            return `
+              <div class="product-card ${genderClass}">
+                ${p.image ? `<img src="${p.image}" class="product-image" alt="" loading="lazy" onclick="openImageModal(this.src)" onerror="this.style.display='none'">` : `<div class="product-image" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:48px;">📷</div>`}
+                <div class="product-info">
+                  <div class="product-name">${p.productName}</div>
+                  <div class="product-meta">
+                    <span class="meta-tag style">${p.styleCode}</span>
+                    ${p.colorCode ? `<span class="meta-tag color">${decodeColor(p.colorCode)}</span>` : ''}
+                    ${p.size ? `<span class="meta-tag size">${p.size}</span>` : ''}
+                  </div>
+                </div>
+                <div class="product-price">
+                  <div class="price-info">
+                    ${hasDiscount ? `<div class="price-retail">¥${p.retailPrice.toLocaleString()}</div>` : ''}
+                    <div class="${hasDiscount ? 'price-discount' : 'price-original'}">¥${price.toLocaleString()}</div>
+                  </div>
+                  ${hasDiscount ? `<div class="discount-badge">${p.discount || 'SALE'}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// 搜索功能
+document.addEventListener('DOMContentLoaded', () => {
+  renderStyles();
+  const searchBox = document.getElementById('searchBox');
+  searchBox.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderStyles();
+  });
+});
+</script>
+
+</body>
+</html>
