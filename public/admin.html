@@ -344,38 +344,61 @@ async function startEnrich() {
     let colorLabel   = p.colorLabel;
     let isNew = false;
 
-    try {
-      const res = await fetch('/api/enrich', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dataUrl,
-          type: p.type,
-          productName: p.productName,
-          needGarment: p.needGarment,
-          needColor: p.needColor,
-        }),
+    {
+      const body = JSON.stringify({
+        dataUrl,
+        type: p.type,
+        productName: p.productName,
+        needGarment: p.needGarment,
+        needColor: p.needColor,
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        log(`✗ ${p.styleCode}: ${err.error || res.status}`, 'err');
-        continue;
+      let succeeded = false;
+      const maxAttempts = 3;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        if (shouldStop) break;
+        try {
+          const res = await fetch('/api/enrich', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            if (attempt < maxAttempts) {
+              const wait = attempt * 2000;
+              log(`↺ ${p.styleCode} 第${attempt}次失败(${err.error || res.status})，${wait/1000}s后重试`, 'err');
+              await new Promise(r => setTimeout(r, wait));
+              continue;
+            }
+            log(`✗ ${p.styleCode}: ${err.error || res.status}（已重试${maxAttempts-1}次）`, 'err');
+            break;
+          }
+
+          const data = await res.json();
+          if (data.garmentLabel) { garmentLabel = data.garmentLabel; isNew = true; }
+          if (data.colorLabel)   { colorLabel   = data.colorLabel;   isNew = true; }
+
+          if (isNew) {
+            cache[p.image] = { garmentLabel, colorLabel };
+            saveCache(cache);
+          }
+
+          log(`✓ ${p.styleCode.padEnd(8)} 品类=${garmentLabel || '—'} 颜色=${colorLabel || '—'}  [${data.model || ''}]${attempt > 1 ? ` (第${attempt}次)` : ''}`, 'ok');
+          succeeded = true;
+          break;
+        } catch (e) {
+          if (attempt < maxAttempts) {
+            const wait = attempt * 2000;
+            log(`↺ ${p.styleCode} 第${attempt}次超时(${e.message})，${wait/1000}s后重试`, 'err');
+            await new Promise(r => setTimeout(r, wait));
+          } else {
+            log(`✗ ${p.styleCode}: ${e.message}（已重试${maxAttempts-1}次）`, 'err');
+          }
+        }
       }
-
-      const data = await res.json();
-      if (data.garmentLabel) { garmentLabel = data.garmentLabel; isNew = true; }
-      if (data.colorLabel)   { colorLabel   = data.colorLabel;   isNew = true; }
-
-      if (isNew) {
-        cache[p.image] = { garmentLabel, colorLabel };
-        saveCache(cache);
-      }
-
-      log(`✓ ${p.styleCode.padEnd(8)} 品类=${garmentLabel || '—'} 颜色=${colorLabel || '—'}  [${data.model || ''}]`, 'ok');
-    } catch (e) {
-      log(`✗ ${p.styleCode}: ${e.message}`, 'err');
-      continue;
+      if (!succeeded) continue;
     }
 
     // 写入结果表
@@ -390,7 +413,7 @@ async function startEnrich() {
     `;
     tbody.appendChild(tr);
 
-    await new Promise(r => setTimeout(r, 150));
+    await new Promise(r => setTimeout(r, 500));
   }
 
   running = false;
