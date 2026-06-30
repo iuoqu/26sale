@@ -234,6 +234,10 @@ body {
 .meta-tag.style { background: #e8f0fe; color: #2f5496; }
 .meta-tag.color { background: #fef3e2; color: #b8730a; }
 .meta-tag.size { background: #e8f5e9; color: #2e7d32; }
+.meta-tag.series-filter { background: #f0ede6; color: #5a4a3a; cursor: pointer; transition: background 0.15s; }
+.meta-tag.series-filter:hover { background: #c9a96e; color: #1a1a2e; }
+a.meta-tag.series-link { background: #f0ede6; color: #5a4a3a; text-decoration: none; transition: background 0.15s; }
+a.meta-tag.series-link:hover { background: #c9a96e; color: #1a1a2e; }
 .product-price {
   display: flex;
   justify-content: space-between;
@@ -535,6 +539,13 @@ function setColor(color) {
   render();
 }
 
+function filterBySeries(series) {
+  activeSeries = (series === activeSeries) ? '' : series;
+  document.getElementById('seriesFilter').value = activeSeries;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function renderChips(groups) {
   const cats = sortCats(Object.keys(groups));
   const chips = document.getElementById('catChips');
@@ -584,6 +595,7 @@ function render() {
                     <span class="meta-tag style">${p.styleCode}</span>
                     ${(p.colorLabel || decodeColor(p.colorCode)) ? `<span class="meta-tag color">${p.colorLabel || decodeColor(p.colorCode)}</span>` : ''}
                     ${p.sizeDisplay ? `<span class="meta-tag size">${p.sizeDisplay}</span>` : ''}
+                    ${p.series ? `<span class="meta-tag series-filter" onclick="filterBySeries('${p.series.replace(/'/g,"\\'")}')">📂 ${p.series}</span><a href="series_overview.html?series=${encodeURIComponent(p.series)}" class="meta-tag series-link" onclick="event.stopPropagation()">↗</a>` : ''}
                   </div>
                 </div>
                 <div class="product-price">
