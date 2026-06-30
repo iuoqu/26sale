@@ -268,17 +268,9 @@ function renderStats() {
   document.getElementById('btnRun').disabled = needAny === 0;
 }
 
-// ── 图片 → base64 ─────────────────────────────────────────────────────────
-async function imageToBase64(imgPath) {
-  const res = await fetch(imgPath, { signal: AbortSignal.timeout(10000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${imgPath}`);
-  const blob = await res.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result); // data:image/png;base64,...
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+// ── 构造图片完整 URL（让 Qwen 直接抓，省去 base64 转换）──────────────────
+function imageToUrl(imgPath) {
+  return window.location.origin + imgPath;
 }
 
 // ── 日志 ───────────────────────────────────────────────────────────────────
@@ -334,13 +326,7 @@ async function startEnrich() {
     document.getElementById('progressBar').style.width = pct + '%';
     document.getElementById('progressText').textContent = `${done} / ${queue.length}（${pct}%）`;
 
-    let dataUrl;
-    try {
-      dataUrl = await imageToBase64(p.image);
-    } catch (e) {
-      log(`⚠ ${p.styleCode} 图片加载失败: ${e.message}`, 'err');
-      continue;
-    }
+    const imageUrl = imageToUrl(p.image);
 
     let garmentLabel = p.garmentLabel;
     let colorLabel   = p.colorLabel;
@@ -348,7 +334,7 @@ async function startEnrich() {
 
     {
       const body = JSON.stringify({
-        dataUrl,
+        imageUrl,
         type: p.type,
         productName: p.productName,
         needGarment: p.needGarment,
