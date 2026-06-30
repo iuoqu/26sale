@@ -96,7 +96,7 @@ body {
 }
 .search-box:focus { border-color: #c9a96e; }
 
-/* Category nav chips */
+/* Category nav chips — sticky below header + toolbar */
 .cat-chips {
   background: #fff;
   padding: 8px 16px;
@@ -105,7 +105,12 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-bottom: 1px solid #e8e4dd;
+  position: sticky;
+  top: 115px;
+  z-index: 98;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
+.cat-chips::-webkit-scrollbar { display: none; }
 .cat-chip {
   padding: 6px 14px;
   border: 1px solid #d4cfc7;
@@ -120,11 +125,47 @@ body {
 .cat-chip:hover { border-color: #c9a96e; }
 .cat-chip.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
 
+/* Color filter — sticky below cat chips */
+.color-filter {
+  background: #fafaf8;
+  padding: 7px 16px;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid #e8e4dd;
+  position: sticky;
+  top: 160px;
+  z-index: 97;
+  align-items: center;
+}
+.color-filter::-webkit-scrollbar { display: none; }
+.color-chip {
+  padding: 4px 12px;
+  border: 1px solid #d4cfc7;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.color-chip:hover { border-color: #c9a96e; }
+.color-chip.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.color-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0;
+}
+
 /* Container */
 .container { max-width: 1000px; margin: 0 auto; padding: 12px; }
 
 /* Category Group */
-.cat-group { margin-bottom: 24px; scroll-margin-top: 120px; }
+.cat-group { margin-bottom: 24px; scroll-margin-top: 215px; }
 .cat-group-title {
   font-size: 18px;
   font-weight: 700;
@@ -258,7 +299,9 @@ body {
   .header { flex-direction: column; align-items: flex-start; padding: 10px 16px; }
   .header-nav { width: 100%; justify-content: space-around; }
   .toolbar { top: 110px; }
-  .cat-group { scroll-margin-top: 180px; }
+  .cat-chips { top: 160px; }
+  .color-filter { top: 205px; }
+  .cat-group { scroll-margin-top: 260px; }
   .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .chat-widget { width: calc(100% - 24px); right: 12px; }
 }
@@ -292,6 +335,7 @@ body {
 </div>
 
 <div class="cat-chips" id="catChips"></div>
+<div class="color-filter" id="colorFilter"></div>
 
 <div class="container" id="catContainer"></div>
 
@@ -421,7 +465,20 @@ function sortCats(cats) {
   });
 }
 
+const COLOR_DOTS = {
+  '黑':'#222','白':'#f0f0f0','米白':'#f0ede0','灰':'#aaa','深灰':'#666',
+  '棕':'#8B6F47','深棕':'#4a2e1a','卡其':'#c8a96e','蓝':'#3b82f6',
+  '海军蓝':'#1e3a5f','绿':'#4caf50','橄榄绿':'#7a8c3e','红':'#e53935',
+  '粉':'#f48fb1','紫':'#9c27b0','黄':'#fdd835','奶油':'#fef9e7',
+  '米色':'#f5deb3','多色':'linear-gradient(135deg,#e53935 33%,#4caf50 33% 66%,#3b82f6 66%)',
+};
+
 let searchQuery = '';
+let selectedColor = '';
+
+function getEffectiveColor(p) {
+  return p.colorLabel || decodeColor(p.colorCode);
+}
 
 function getGroups() {
   let filtered = PRODUCTS;
@@ -434,6 +491,9 @@ function getGroups() {
       (p.series && p.series.toLowerCase().includes(q))
     );
   }
+  if (selectedColor) {
+    filtered = filtered.filter(p => getEffectiveColor(p) === selectedColor);
+  }
   const groups = {};
   filtered.forEach(p => {
     const cat = getCategory(p);
@@ -441,6 +501,31 @@ function getGroups() {
     groups[cat].push(p);
   });
   return groups;
+}
+
+function renderColorFilter() {
+  const counts = {};
+  PRODUCTS.forEach(p => {
+    const c = getEffectiveColor(p);
+    if (c) counts[c] = (counts[c] || 0) + 1;
+  });
+  const colors = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+  const el = document.getElementById('colorFilter');
+  el.innerHTML = [
+    `<button class="color-chip${selectedColor === '' ? ' active' : ''}" onclick="setColor('')">全部</button>`,
+    ...colors.map(c => {
+      const dot = COLOR_DOTS[c];
+      const dotHtml = dot
+        ? `<span class="color-dot" style="background:${dot};${dot.startsWith('linear') ? 'border:none' : ''}"></span>`
+        : '';
+      return `<button class="color-chip${selectedColor === c ? ' active' : ''}" onclick="setColor('${c}')">${dotHtml}${c}<span style="opacity:0.55;margin-left:3px;font-size:11px;">${counts[c]}</span></button>`;
+    })
+  ].join('');
+}
+
+function setColor(color) {
+  selectedColor = (color === selectedColor) ? '' : color;
+  render();
 }
 
 function renderChips(groups) {
@@ -463,6 +548,7 @@ function render() {
   const cats = sortCats(Object.keys(groups));
 
   renderChips(groups);
+  renderColorFilter();
 
   if (cats.length === 0) {
     container.innerHTML = '<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>';
