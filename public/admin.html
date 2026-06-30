@@ -328,6 +328,40 @@ async function startEnrich() {
 
   log(`开始处理 ${queue.length} 件商品...`, 'dim');
 
+  // 探测模型（每次启动只做一次）
+  if (!knownModel) {
+    log('正在探测可用视觉模型（最多 60s）...', 'dim');
+    try {
+      const firstImg = queue[0] && await imageToBase64(queue[0].image).catch(() => null);
+      if (!firstImg) { log('✗ 无法加载首个图片，终止', 'err'); running = false; return; }
+      const probeRes = await fetch('/api/probe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataUrl: firstImg }),
+        signal: AbortSignal.timeout(65000),
+      });
+      if (!probeRes.ok) {
+        const e = await probeRes.json().catch(() => ({}));
+        log(`✗ ${e.error || '模型探测失败'}`, 'err');
+        running = false;
+        document.getElementById('btnRun').disabled = false;
+        document.getElementById('btnStop').style.display = 'none';
+        return;
+      }
+      const { model } = await probeRes.json();
+      knownModel = model;
+      log(`✓ 使用模型: ${model}`, 'ok');
+    } catch (e) {
+      log(`✗ 模型探测异常: ${e.message}`, 'err');
+      running = false;
+      document.getElementById('btnRun').disabled = false;
+      document.getElementById('btnStop').style.display = 'none';
+      return;
+    }
+  } else {
+    log(`使用已知模型: ${knownModel}`, 'dim');
+  }
+
   const cache = getCache();
   let done = 0;
 
@@ -387,7 +421,6 @@ async function startEnrich() {
           }
 
           const data = await res.json();
-          if (data.model) knownModel = data.model;
           if (data.garmentLabel) { garmentLabel = data.garmentLabel; isNew = true; }
           if (data.colorLabel)   { colorLabel   = data.colorLabel;   isNew = true; }
 

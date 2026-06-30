@@ -1,6 +1,10 @@
 {
   "buildCommand": "npm install",
   "functions": {
+    "api/probe.js": {
+      "memory": 512,
+      "maxDuration": 60
+    },
     "api/**/*.js": {
       "memory": 1024,
       "maxDuration": 30
