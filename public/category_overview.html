@@ -218,6 +218,41 @@ body {
 .empty { text-align: center; padding: 60px 20px; color: #999; }
 .empty .icon { font-size: 48px; margin-bottom: 12px; }
 
+/* Chat Widget */
+.chat-toggle {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: #c9a96e; color: #1a1a2e; border: none;
+  font-size: 20px; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; z-index: 90;
+}
+.chat-toggle:hover { background: #d4b574; transform: scale(1.1); }
+.chat-widget {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 350px; height: 500px; background: #fff;
+  border-radius: 12px; box-shadow: 0 5px 40px rgba(0,0,0,0.2);
+  display: none; flex-direction: column; z-index: 1001;
+}
+.chat-widget.show { display: flex; }
+.chat-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  color: #fff; padding: 14px 16px; border-radius: 12px 12px 0 0;
+  display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+}
+.chat-close { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; width: 24px; height: 24px; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.chat-message { padding: 10px 14px; border-radius: 8px; max-width: 80%; word-wrap: break-word; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.chat-message.user { align-self: flex-end; background: #1a1a2e; color: #fff; border-radius: 8px 2px 8px 8px; }
+.chat-message.assistant { align-self: flex-start; background: #f0ede6; color: #333; border-radius: 2px 8px 8px 8px; }
+.chat-input-area { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #e8e4dd; background: #fafafa; border-radius: 0 0 12px 12px; }
+.chat-input { flex: 1; border: 1px solid #d4cfc7; border-radius: 6px; padding: 8px 12px; font-size: 13px; outline: none; }
+.chat-input:focus { border-color: #c9a96e; }
+.chat-send { padding: 8px 16px; background: #c9a96e; color: #1a1a2e; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; }
+.chat-send:hover { background: #d4b574; }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* Mobile */
 @media (max-width: 600px) {
   .header { flex-direction: column; align-items: flex-start; padding: 10px 16px; }
@@ -225,6 +260,7 @@ body {
   .toolbar { top: 110px; }
   .cat-group { scroll-margin-top: 180px; }
   .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .chat-widget { width: calc(100% - 24px); right: 12px; }
 }
 </style>
 </head>
@@ -259,6 +295,20 @@ body {
 
 <div class="container" id="catContainer"></div>
 
+<!-- AI Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+  <div class="chat-header">
+    <span>🤖 AI 购物助手</span>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="描述你想要的产品..." class="chat-input">
+    <button onclick="sendChatMessage()" class="chat-send">发送</button>
+  </div>
+</div>
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬 AI 助手</button>
+
 <script>
 // 检查登录状态
 if (!sessionStorage.getItem('authenticated')) {
@@ -281,10 +331,22 @@ function decodeGarment(productName) {
     ['PUFFER', '羽绒服'], ['DOWN VEST', '羽绒马甲'], ['VEST', '马甲'], ['RACER', '机车夹克'],
     ['JACKET', '夹克'], ['JACKE', '夹克'], ['JACK', '夹克'], ['LEATHER J', '夹克'], ['JAC', '夹克'],
     ['CARPENTER PANT', '工装裤'], ['JEANS', '牛仔裤'], ['JEAN', '牛仔裤'], ['TROUSER', '长裤'], ['JOGGER', '运动裤'], ['PANTS', '裤子'], ['PANT', '裤子'], ['SHORTS', '短裤'],
-    ['COAT', '大衣'], ['DRESS', '连衣裙'], ['SKIRT', '半身裙'], ['SHIRT', '衬衫']
+    ['COAT', '大衣'], ['DRESS', '连衣裙'], ['SKIRT', '半身裙'], ['SHIRT', '衬衫'],
+    ['SINGLE BREASTED', '西装外套']
   ];
   for (const [token, name] of types) {
     if (u.includes(token)) return name;
+  }
+  // 源数据 productName 被截断到 30 字符，款式关键词常被从结尾切掉。
+  // 用结尾匹配救回能确定的截断款式（已逐一核对无误判）。
+  const suffixes = [
+    ['CAR', '开衫'],        // ...CARDIGAN
+    ['T S', 'T恤'],         // ...T SHIRT
+    ['PLEATED S', '半身裙'], // ...PLEATED SKIRT
+    ['C J', '夹克']         // ...C JACKET
+  ];
+  for (const [token, name] of suffixes) {
+    if (u.endsWith(token)) return name;
   }
   return '服装';
 }
@@ -437,7 +499,128 @@ document.addEventListener('DOMContentLoaded', () => {
     searchQuery = e.target.value;
     render();
   });
+  const chatInput = document.getElementById('chatInput');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+  }
 });
+
+// ========== CHAT WIDGET ==========
+function toggleChat() {
+  const widget = document.getElementById('chatWidget');
+  const toggle = document.getElementById('chatToggle');
+  widget.classList.toggle('show');
+  toggle.style.display = widget.classList.contains('show') ? 'none' : 'flex';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const messages = document.getElementById('chatMessages');
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user';
+  userMsg.textContent = message;
+  messages.appendChild(userMsg);
+
+  input.value = '';
+  input.disabled = true;
+  const sendBtn = document.querySelector('.chat-send');
+  sendBtn.disabled = true;
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message, products: PRODUCTS })
+    });
+
+    if (!response.ok) {
+      let errorDetail = `API错误 ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) errorDetail = errorData.message;
+        if (errorData.details) errorDetail += '\n详情: ' + errorData.details;
+        if (errorData.error) errorDetail = errorData.error;
+      } catch (e) {}
+      throw new Error(errorDetail);
+    }
+
+    const data = await response.json();
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-message assistant';
+    aiMsg.textContent = data.message;
+    messages.appendChild(aiMsg);
+
+    if (data.matchCount > 0) {
+      const summary = document.createElement('div');
+      summary.style.cssText = 'align-self:flex-start;background:#e8f0fe;padding:10px 12px;border-radius:6px;margin-top:8px;font-size:12px;color:#1a1a2e;width:100%;';
+      summary.innerHTML = `✅ 找到 <strong>${data.matchCount}</strong> 个匹配产品`;
+      messages.appendChild(summary);
+    }
+
+    if (data.matchedProducts && data.matchedProducts.length > 0) {
+      const productsContainer = document.createElement('div');
+      productsContainer.style.cssText = 'align-self:flex-start;width:100%;display:flex;flex-direction:column;gap:8px;margin-top:10px;';
+
+      const groupedBySeries = {};
+      data.matchedProducts.forEach(p => {
+        const series = p.series || '其他';
+        if (!groupedBySeries[series]) groupedBySeries[series] = [];
+        groupedBySeries[series].push(p);
+      });
+
+      Object.entries(groupedBySeries).forEach(([series, items]) => {
+        const seriesTitle = document.createElement('div');
+        seriesTitle.style.cssText = 'font-size:12px;font-weight:600;color:#c9a96e;margin-top:6px;';
+        seriesTitle.textContent = `📦 ${series}`;
+        productsContainer.appendChild(seriesTitle);
+
+        items.forEach(product => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#f5f3ef;padding:8px;border-radius:6px;font-size:11px;cursor:pointer;border-left:3px solid #c9a96e;transition:all 0.2s;';
+          const price = product.discountPrice || product.retailPrice;
+          card.innerHTML = `
+            <strong>${product.productName}</strong><br>
+            <span style="color:#999;">${product.styleCode} | ${product.colorCode || '无'} | ¥${price}</span>
+          `;
+          card.onmouseover = () => card.style.background = '#ede9e1';
+          card.onmouseout = () => card.style.background = '#f5f3ef';
+          card.onclick = () => {
+            searchQuery = product.styleCode;
+            document.getElementById('searchBox').value = product.styleCode;
+            render();
+            toggleChat();
+          };
+          productsContainer.appendChild(card);
+        });
+      });
+
+      messages.appendChild(productsContainer);
+    }
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'chat-message assistant';
+    errorMsg.style.color = '#c0392b';
+    let errorText = '抱歉，出现了错误。';
+    if (error.message) errorText += '\n\n' + error.message;
+    if (!navigator.onLine) errorText = '网络连接失败，请检查网络。';
+    errorMsg.textContent = errorText;
+    messages.appendChild(errorMsg);
+  }
+
+  input.disabled = false;
+  sendBtn.disabled = false;
+  messages.scrollTop = messages.scrollHeight;
+}
 </script>
 
 </body>
