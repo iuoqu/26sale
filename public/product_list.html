@@ -624,14 +624,14 @@ function decodeType(productName, category) {
 function getProductTags(p) {
   const tags = [];
 
-  // Style type detection (中文款式标签)
-  const typeName = decodeType(p.productName, p.category);
+  // Style type detection (中文款式标签)，优先用脚本预生成的 garmentLabel
+  const typeName = p.garmentLabel || decodeType(p.productName, p.category);
   if (typeName) {
     tags.push({ label: typeName, type: 'style', color: '#8B6F47' });
   }
 
-  if (p.colorCode) {
-    const colorName = decodeColor(p.colorCode);
+  const colorName = p.colorLabel || decodeColor(p.colorCode);
+  if (colorName) {
     tags.push({ label: colorName, type: 'color', color: '#c9a96e' });
   }
 

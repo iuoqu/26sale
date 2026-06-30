@@ -353,6 +353,8 @@ function decodeGarment(productName) {
 
 // 品类 = 包/鞋直接用 type；衣按款式细分。
 function getCategory(p) {
+  // 优先用脚本预生成的标签
+  if (p.garmentLabel) return p.garmentLabel;
   if (p.type === '包') return '包';
   if (p.type === '鞋') return '鞋';
   if (p.type === '衣') return decodeGarment(p.productName);
@@ -473,7 +475,7 @@ function render() {
                   <div class="product-name">${p.productName}</div>
                   <div class="product-meta">
                     <span class="meta-tag style">${p.styleCode}</span>
-                    ${p.colorCode ? `<span class="meta-tag color">${decodeColor(p.colorCode)}</span>` : ''}
+                    ${(p.colorLabel || decodeColor(p.colorCode)) ? `<span class="meta-tag color">${p.colorLabel || decodeColor(p.colorCode)}</span>` : ''}
                     ${p.sizeDisplay ? `<span class="meta-tag size">${p.sizeDisplay}</span>` : ''}
                   </div>
                 </div>
