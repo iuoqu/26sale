@@ -42,15 +42,8 @@ body {
   justify-content: center;
   flex-shrink: 0;
 }
-.header-logo svg {
-  width: 100%;
-  height: 100%;
-}
-.header-title {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.header-logo svg { width: 100%; height: 100%; }
+.header-title { display: flex; flex-direction: column; gap: 2px; }
 .header h1 {
   font-size: 16px;
   font-weight: 700;
@@ -58,16 +51,8 @@ body {
   margin: 0;
   color: #c9a96e;
 }
-.header .subtitle {
-  font-size: 11px;
-  opacity: 0.7;
-  letter-spacing: 0.5px;
-}
-.header-nav {
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
-}
+.header .subtitle { font-size: 11px; opacity: 0.7; letter-spacing: 0.5px; }
+.header-nav { display: flex; gap: 12px; flex-shrink: 0; }
 .nav-btn {
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.1);
@@ -83,16 +68,8 @@ body {
   text-decoration: none;
   display: inline-block;
 }
-.nav-btn:hover {
-  background: #c9a96e;
-  color: #1a1a2e;
-  border-color: #c9a96e;
-}
-.nav-btn.active {
-  background: #c9a96e;
-  color: #1a1a2e;
-  border-color: #c9a96e;
-}
+.nav-btn:hover { background: #c9a96e; color: #1a1a2e; border-color: #c9a96e; }
+.nav-btn.active { background: #c9a96e; color: #1a1a2e; border-color: #c9a96e; }
 
 /* Toolbar */
 .toolbar {
@@ -104,7 +81,7 @@ body {
   flex-wrap: wrap;
   border-bottom: 1px solid #e8e4dd;
   position: sticky;
-  top: 50px;
+  top: 65px;
   z-index: 99;
 }
 .search-box {
@@ -119,42 +96,56 @@ body {
 }
 .search-box:focus { border-color: #c9a96e; }
 
-/* Container */
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 12px;
+/* Category nav chips */
+.cat-chips {
+  background: #fff;
+  padding: 8px 16px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid #e8e4dd;
 }
+.cat-chip {
+  padding: 6px 14px;
+  border: 1px solid #d4cfc7;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  color: #666;
+}
+.cat-chip:hover { border-color: #c9a96e; }
+.cat-chip.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
 
-/* Style Group */
-.style-group {
-  margin-bottom: 24px;
-}
-.style-group-title {
+/* Container */
+.container { max-width: 1000px; margin: 0 auto; padding: 12px; }
+
+/* Category Group */
+.cat-group { margin-bottom: 24px; scroll-margin-top: 120px; }
+.cat-group-title {
   font-size: 18px;
   font-weight: 700;
   color: #1a1a2e;
-  padding: 16px 12px 8px;
+  padding: 12px;
   border-left: 4px solid #c9a96e;
-  background: rgba(201, 169, 110, 0.05);
-  margin: 20px 0 12px 0;
+  background: rgba(201, 169, 110, 0.08);
+  margin: 16px 0 12px 0;
   display: flex;
   align-items: center;
   gap: 12px;
+  border-radius: 0 6px 6px 0;
 }
-.style-count {
-  font-size: 14px;
-  color: #999;
-  font-weight: 400;
-}
+.cat-count { font-size: 14px; color: #999; font-weight: 400; }
 
 /* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
 }
-
 .product-card {
   background: #fff;
   border-radius: 10px;
@@ -169,24 +160,16 @@ body {
 .product-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
 .product-card.male { border-left-color: #2f5496; }
 .product-card.female { border-left-color: #c0392b; }
-
 .product-image {
   width: 100%;
-  height: 200px;
+  height: 180px;
   border-radius: 8px;
   object-fit: cover;
   background: #f5f3ef;
   cursor: zoom-in;
 }
-.product-image:hover {
-  transform: scale(1.02);
-}
-
-.product-info {
-  flex: 1;
-  min-width: 0;
-}
-
+.product-image:hover { transform: scale(1.02); }
+.product-info { flex: 1; min-width: 0; }
 .product-name {
   font-size: 14px;
   font-weight: 600;
@@ -198,7 +181,6 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 .product-meta {
   font-size: 12px;
   color: #999;
@@ -207,17 +189,10 @@ body {
   flex-wrap: wrap;
   margin-bottom: 8px;
 }
-.meta-tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: #f0ede6;
-  color: #666;
-}
+.meta-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #f0ede6; color: #666; }
 .meta-tag.style { background: #e8f0fe; color: #2f5496; }
 .meta-tag.color { background: #fef3e2; color: #b8730a; }
 .meta-tag.size { background: #e8f5e9; color: #2e7d32; }
-
 .product-price {
   display: flex;
   justify-content: space-between;
@@ -225,21 +200,10 @@ body {
   padding-top: 8px;
   border-top: 1px solid #f0ede6;
 }
-
-.price-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
+.price-info { display: flex; flex-direction: column; gap: 2px; }
 .price-original { font-size: 14px; color: #1a1a2e; font-weight: 600; }
 .price-retail { font-size: 12px; color: #999; text-decoration: line-through; }
-.price-discount {
-  font-size: 16px;
-  font-weight: 700;
-  color: #c0392b;
-}
-
+.price-discount { font-size: 16px; font-weight: 700; color: #c0392b; }
 .discount-badge {
   display: inline-block;
   background: #c0392b;
@@ -251,27 +215,16 @@ body {
 }
 
 /* Empty State */
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-}
+.empty { text-align: center; padding: 60px 20px; color: #999; }
 .empty .icon { font-size: 48px; margin-bottom: 12px; }
 
 /* Mobile */
 @media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px 16px;
-  }
-  .header-nav {
-    width: 100%;
-    justify-content: space-around;
-  }
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
+  .header { flex-direction: column; align-items: flex-start; padding: 10px 16px; }
+  .header-nav { width: 100%; justify-content: space-around; }
+  .toolbar { top: 110px; }
+  .cat-group { scroll-margin-top: 180px; }
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 }
 </style>
 </head>
@@ -293,7 +246,8 @@ body {
   </div>
   <div class="header-nav">
     <a href="product_list.html" class="nav-btn">SKU</a>
-    <a href="style_overview.html" class="nav-btn active">风格</a>
+    <a href="series_overview.html" class="nav-btn">系列</a>
+    <a href="category_overview.html" class="nav-btn active">品类</a>
   </div>
 </div>
 
@@ -301,7 +255,9 @@ body {
   <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索款式、颜色、系列...">
 </div>
 
-<div class="container" id="styleContainer"></div>
+<div class="cat-chips" id="catChips"></div>
+
+<div class="container" id="catContainer"></div>
 
 <script>
 // 检查登录状态
@@ -313,9 +269,9 @@ if (!sessionStorage.getItem('authenticated')) {
 <script src="product_data.js"></script>
 
 <script>
-// 从productName识别中文款式类型
-function decodeType(productName, category) {
-  if (!productName) return '其他';
+// 把服装的 productName 识别成中文品类。顺序优先，更具体的在前。
+function decodeGarment(productName) {
+  if (!productName) return '服装';
   const u = productName.toUpperCase();
   const types = [
     ['T-SHIRT', 'T恤'], ['T SHIRT', 'T恤'], ['T-SH', 'T恤'], ['T SHI', 'T恤'], ['T SH', 'T恤'], [' TEE', 'T恤'], ['TANK', '背心'],
@@ -330,8 +286,15 @@ function decodeType(productName, category) {
   for (const [token, name] of types) {
     if (u.includes(token)) return name;
   }
-  if (category === '男衣' || category === '女衣') return '服装';
-  return '其他';
+  return '服装';
+}
+
+// 品类 = 包/鞋直接用 type；衣按款式细分。
+function getCategory(p) {
+  if (p.type === '包') return '包';
+  if (p.type === '鞋') return '鞋';
+  if (p.type === '衣') return decodeGarment(p.productName);
+  return p.type || '其他';
 }
 
 function decodeColor(rawCode) {
@@ -367,12 +330,23 @@ function openImageModal(src) {
   document.body.appendChild(modal);
 }
 
+// 品类显示顺序：包、鞋在前，服装款式按常见度排列
+const CAT_ORDER = ['包', '鞋', 'T恤', '衬衫', 'Polo衫', '卫衣', '毛衣', '开衫', '圆领衫', '背心',
+                   '夹克', '飞行夹克', '机车夹克', '西装外套', '风衣', '大衣', '连帽衫',
+                   '羽绒服', '羽绒马甲', '马甲', '工装裤', '牛仔裤', '长裤', '运动裤', '短裤',
+                   '连衣裙', '半身裙', '服装', '其他'];
+
+function sortCats(cats) {
+  return cats.sort((a, b) => {
+    const ai = CAT_ORDER.indexOf(a); const bi = CAT_ORDER.indexOf(b);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  });
+}
+
 let searchQuery = '';
 
-function renderStyles() {
-  const container = document.getElementById('styleContainer');
+function getGroups() {
   let filtered = PRODUCTS;
-
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(p =>
@@ -382,40 +356,48 @@ function renderStyles() {
       (p.series && p.series.toLowerCase().includes(q))
     );
   }
-
-  // 按款式分组
-  const styleGroups = {};
+  const groups = {};
   filtered.forEach(p => {
-    const style = decodeType(p.productName, p.category);
-    if (!styleGroups[style]) {
-      styleGroups[style] = [];
-    }
-    styleGroups[style].push(p);
+    const cat = getCategory(p);
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(p);
   });
+  return groups;
+}
 
-  if (Object.keys(styleGroups).length === 0) {
+function renderChips(groups) {
+  const cats = sortCats(Object.keys(groups));
+  const chips = document.getElementById('catChips');
+  if (cats.length === 0) { chips.innerHTML = ''; return; }
+  chips.innerHTML = cats.map(c =>
+    `<button class="cat-chip" onclick="scrollToCat('${c}')">${c}<span style="opacity:0.6;margin-left:4px;">${groups[c].length}</span></button>`
+  ).join('');
+}
+
+function scrollToCat(cat) {
+  const el = document.getElementById('cat-' + cat);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function render() {
+  const container = document.getElementById('catContainer');
+  const groups = getGroups();
+  const cats = sortCats(Object.keys(groups));
+
+  renderChips(groups);
+
+  if (cats.length === 0) {
     container.innerHTML = '<div class="empty"><div class="icon">🔍</div><p>没有找到匹配的商品</p></div>';
     return;
   }
 
-  const styleOrder = ['T恤', '衬衫', 'Polo衫', '卫衣', '毛衣', '开衫', '夹克', '飞行夹克', '风衣', '大衣', '连帽衫', '圆领衫',
-                      '西装外套', '背心', '马甲', '羽绒服', '羽绒马甲', '机车夹克', '工装裤', '牛仔裤', '长裤', '运动裤', '短裤',
-                      '连衣裙', '半身裙', '其他'];
-
-  const sortedStyles = Object.keys(styleGroups).sort((a, b) => {
-    const aIdx = styleOrder.indexOf(a);
-    const bIdx = styleOrder.indexOf(b);
-    return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
-  });
-
-  let html = '';
-  sortedStyles.forEach(style => {
-    const products = styleGroups[style];
-    html += `
-      <div class="style-group">
-        <div class="style-group-title">
-          👕 ${style}
-          <span class="style-count">(${products.length}件)</span>
+  container.innerHTML = cats.map(cat => {
+    const products = groups[cat];
+    return `
+      <div class="cat-group" id="cat-${cat}">
+        <div class="cat-group-title">
+          ${cat}
+          <span class="cat-count">(${products.length}件)</span>
         </div>
         <div class="product-grid">
           ${products.map(p => {
@@ -430,7 +412,7 @@ function renderStyles() {
                   <div class="product-meta">
                     <span class="meta-tag style">${p.styleCode}</span>
                     ${p.colorCode ? `<span class="meta-tag color">${decodeColor(p.colorCode)}</span>` : ''}
-                    ${p.size ? `<span class="meta-tag size">${p.size}</span>` : ''}
+                    ${p.sizeDisplay ? `<span class="meta-tag size">${p.sizeDisplay}</span>` : ''}
                   </div>
                 </div>
                 <div class="product-price">
@@ -446,18 +428,14 @@ function renderStyles() {
         </div>
       </div>
     `;
-  });
-
-  container.innerHTML = html;
+  }).join('');
 }
 
-// 搜索功能
 document.addEventListener('DOMContentLoaded', () => {
-  renderStyles();
-  const searchBox = document.getElementById('searchBox');
-  searchBox.addEventListener('input', (e) => {
+  render();
+  document.getElementById('searchBox').addEventListener('input', (e) => {
     searchQuery = e.target.value;
-    renderStyles();
+    render();
   });
 });
 </script>
