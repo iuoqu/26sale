@@ -540,7 +540,7 @@ if (!sessionStorage.getItem('authenticated')) {
     const cache = JSON.parse(localStorage.getItem('productEnrichment') || '{}');
     if (!Object.keys(cache).length) return;
     PRODUCTS.forEach(p => {
-      const c = cache[p.styleCode];
+      const c = cache[p.image];
       if (!c) return;
       if (c.garmentLabel && !p.garmentLabel) p.garmentLabel = c.garmentLabel;
       if (c.colorLabel   && !p.colorLabel)   p.colorLabel   = c.colorLabel;

@@ -235,7 +235,7 @@ function saveCache(cache) {
 function analyzeProducts() {
   const cache = getCache();
   return PRODUCTS.map(p => {
-    const cached = cache[p.styleCode] || {};
+    const cached = cache[p.image] || {};
     const garmentFromName = p.type === '衣' ? decodeGarmentFromName(p.productName) : (p.type || '');
     const colorFromCode   = decodeColorFromCode(p.colorCode);
 
@@ -368,7 +368,7 @@ async function startEnrich() {
       if (data.colorLabel)   { colorLabel   = data.colorLabel;   isNew = true; }
 
       if (isNew) {
-        cache[p.styleCode] = { garmentLabel, colorLabel };
+        cache[p.image] = { garmentLabel, colorLabel };
         saveCache(cache);
       }
 
@@ -410,7 +410,7 @@ async function startEnrich() {
 function downloadData() {
   const cache = getCache();
   const enriched = PRODUCTS.map(p => {
-    const c = cache[p.styleCode] || {};
+    const c = cache[p.image] || {};
     const out = { ...p };
     if (c.garmentLabel) out.garmentLabel = c.garmentLabel;
     if (c.colorLabel)   out.colorLabel   = c.colorLabel;
